@@ -6,5 +6,8 @@ CREATE TABLE car_generations(
                                 year_start INT NOT NULL,
                                 year_end INT,
                                 name VARCHAR(50) NOT NULL,
-                                UNIQUE(model_id, name)
+                                UNIQUE(model_id, name),
+                                CONSTRAINT valid_year_range CHECK(
+                                    year_end IS NULL OR year_end >= year_start
+                                )
 );
