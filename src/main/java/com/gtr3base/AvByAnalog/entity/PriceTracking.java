@@ -1,6 +1,16 @@
 package com.gtr3base.AvByAnalog.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import  jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Column;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.FetchType;
+import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,16 +31,21 @@ public class PriceTracking {
     private Integer id;
 
     @Column(name = "car_id", nullable = false)
+    @NotNull(message = "Car ID cannot be null")
+    @Positive(message = "Car ID must be a positive number")
     private Integer carId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id", insertable = false, updatable = false)
     private Car car;
 
+    @DecimalMin(value = "0.0", message = "Price cant be negative")
+    @Digits(integer = 10, fraction = 2, message = "Invalid price format")
     @Column(name = "price", nullable = false, precision = 10, scale = 2)
     private BigDecimal price;
 
     @Column(name = "created_at")
+    @PastOrPresent(message = "Creation date cannot be in the future")
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @PrePersist

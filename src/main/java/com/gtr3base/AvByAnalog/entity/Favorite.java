@@ -1,6 +1,16 @@
 package com.gtr3base.AvByAnalog.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Table;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Column;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.FetchType;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,17 +26,22 @@ import java.time.LocalDateTime;
 @Table(name = "favorites")
 public class Favorite {
     @EmbeddedId
+    @NotNull(message = "Favorite ID is required")
+    @Valid
     private FavoriteId id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @NotNull(message = "User is required")
     private User user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "car_id", insertable = false, updatable = false)
+    @NotNull(message = "Car is required")
     private Car car;
 
     @Column(name = "added_at")
+    @PastOrPresent(message = "Creation cannot be in the future")
     private LocalDateTime addedAt = LocalDateTime.now();
 
     @PrePersist
