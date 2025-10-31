@@ -51,13 +51,13 @@ public class CarModel {
     @OneToMany(mappedBy = "carModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     @Valid
-    private List<CarGeneration> generations = new ArrayList<>();
+    private List<CarGeneration> generations;
 
     @Builder.Default
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PriceTracking> priceHistory = new ArrayList<>();
+    private List<PriceTracking> priceHistory;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Favorite> favorites = new ArrayList<>();
+    private List<Favorite> favorites;
 }

@@ -123,17 +123,4 @@ public class Car {
 
         this.updatedAt = LocalDateTime.now();
     }
-
-    @Override
-    public String toString() {
-        return "Car{" +
-                "id=" + id +
-                ", userId=" + user.getId() +
-                ", generationId=" + generation.getId() +
-                ", year=" + year +
-                ", price=" + price +
-                ", status=" + status +
-                ", vinCode='" + vinCode + '\'' +
-                '}';
-    }
 }

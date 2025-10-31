@@ -1,5 +1,6 @@
 package com.gtr3base.AvByAnalog.entity;
 
+import com.gtr3base.AvByAnalog.annotations.ValidGenerationYear;
 import com.gtr3base.AvByAnalog.annotations.ValidYear;
 import jakarta.persistence.Entity;
 import  jakarta.persistence.Id;
@@ -53,7 +54,7 @@ public class CarGeneration {
     @Size(max = 50, message = "Max name length is 50")
     private String name;
 
-    public boolean isCurrentGeneration(){
+   /* public boolean isCurrentGeneration(){
         return yearEnd == null;
     }
 
@@ -64,16 +65,7 @@ public class CarGeneration {
         else{
             return yearStart + "-" + yearEnd;
         }
-    }
-
-    @PostLoad
-    @PrePersist
-    @PreUpdate
-    private void validateYearRange(){
-        if(yearEnd != null && yearEnd <= yearStart){
-            throw new IllegalArgumentException("year end must be greater (or equal) than year start");
-        }
-    }
+    }*/
 
     @Override
     public String toString() {

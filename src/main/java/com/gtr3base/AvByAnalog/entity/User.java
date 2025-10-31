@@ -35,7 +35,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Car> cars = new ArrayList<>();
+    private List<Car> cars;
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     @NotBlank(message = "Username is required")
@@ -64,5 +64,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Favorite> favorites = new ArrayList<>();
+    private List<Favorite> favorites;
 }
