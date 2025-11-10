@@ -1,6 +1,5 @@
 package com.gtr3base.AvByAnalog.entity;
 
-import com.gtr3base.AvByAnalog.annotations.ValidGenerationYear;
 import com.gtr3base.AvByAnalog.annotations.ValidYear;
 import jakarta.persistence.Entity;
 import  jakarta.persistence.Id;
@@ -11,10 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Column;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.UniqueConstraint;
-import jakarta.persistence.PostLoad;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

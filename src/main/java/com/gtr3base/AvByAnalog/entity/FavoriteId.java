@@ -1,5 +1,6 @@
 package com.gtr3base.AvByAnalog.entity;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

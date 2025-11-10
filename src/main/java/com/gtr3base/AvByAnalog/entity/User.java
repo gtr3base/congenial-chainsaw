@@ -17,6 +17,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.PostgreSQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,7 +37,7 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Car> cars;
+    private List<Car> cars = new ArrayList<>();
 
     @Column(name = "username", nullable = false, unique = true, length = 50)
     @NotBlank(message = "Username is required")
@@ -54,6 +56,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
+    @JdbcType(PostgreSQLEnumJdbcType.class)
     @Column(name = "role", nullable = false)
     @NotNull(message = "Role is required")
     private UserRole role = UserRole.USER;
@@ -64,5 +67,5 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<Favorite> favorites;
+    private List<Favorite> favorites = new ArrayList<>();
 }

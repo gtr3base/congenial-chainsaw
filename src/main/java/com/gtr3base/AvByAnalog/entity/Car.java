@@ -4,7 +4,7 @@ import com.gtr3base.AvByAnalog.annotations.ValidGenerationYear;
 import com.gtr3base.AvByAnalog.annotations.ValidYear;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import jakarta.persistence.Entity;
-import  jakarta.persistence.Id;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Table;
 import jakarta.persistence.GeneratedValue;

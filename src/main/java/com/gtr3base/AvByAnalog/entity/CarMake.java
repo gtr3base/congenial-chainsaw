@@ -38,5 +38,5 @@ public class CarMake {
 
     @Builder.Default
     @OneToMany(mappedBy = "carMake", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CarModel> carModels;
+    private List<CarModel> carModels = new ArrayList<>();
 }
