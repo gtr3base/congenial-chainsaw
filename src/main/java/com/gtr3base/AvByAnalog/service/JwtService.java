@@ -1,9 +1,6 @@
 package com.gtr3base.AvByAnalog.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtParser;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -21,6 +18,7 @@ public class JwtService {
     private final Key key;
     private final long expirationMs;
     private final JwtParser jwtParser;
+    private Integer userId;
 
     public JwtService(
             @Value("${AvByAnalog.jwt.secret}") String secret,
@@ -33,6 +31,7 @@ public class JwtService {
 
     public String generateToken(Integer userId, String username, String role) {
         long now = System.currentTimeMillis();
+        this.userId = userId;
         return Jwts.builder()
                 .setSubject(String.valueOf(userId))
                 .setClaims(Map.of("username", username, "role", role))

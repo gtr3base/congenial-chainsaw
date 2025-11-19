@@ -3,13 +3,13 @@ package com.gtr3base.AvByAnalog.service;
 import com.gtr3base.AvByAnalog.dto.AuthResponse;
 import com.gtr3base.AvByAnalog.dto.LoginRequest;
 import com.gtr3base.AvByAnalog.dto.RegisterRequest;
+import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
-import com.gtr3base.AvByAnalog.enums.UserRole;
+import com.gtr3base.AvByAnalog.exceptions.*;
+import com.gtr3base.AvByAnalog.mappers.*;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import jakarta.transaction.Transactional;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,37 +18,40 @@ public class AuthService {
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-    private String token = "";
+    private final RefreshTokenService refreshTokenService;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder) {
+    private String token = "";
+    private RefreshToken refreshToken;
+
+    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @Transactional
     public AuthResponse register(RegisterRequest req){
         String username = req.username().trim();
-        String email = req.email().trim().toLowerCase();
+        String email = req.email().trim();
 
         if(userRepository.existsByUsername(username)){
-            throw new DataIntegrityViolationException("Username is already in use");
+            throw new LoginException(username);
         }
         if(userRepository.existsByEmail(email)){
-            throw new DataIntegrityViolationException("Email is already in use");
+            throw new LoginException(email);
         }
 
-        User user = User
-                .builder()
-                .username(username)
-                .email(email)
-                .password(passwordEncoder.encode(req.password()))
-                .role(UserRole.USER)
-                .build();
+        User user = convertToEntity(req);
+
+        user.setPassword(passwordEncoder.encode(req.password()));
 
         userRepository.save(user);
+
         token = jwtService.generateToken(user.getId(),username,user.getRole().name());
-        return new AuthResponse(token);
+        refreshToken = refreshTokenService.createRefreshToken(username);
+
+        return new AuthResponse(token, refreshToken.getToken());
     }
 
     public AuthResponse login(LoginRequest req){
@@ -60,6 +63,16 @@ public class AuthService {
         }
 
         String loginToken = jwtService.generateToken(user.getId(),user.getUsername(),user.getRole().name());
-        return new AuthResponse(!token.isEmpty() ? token : loginToken);
+
+        if(refreshToken == null){
+            refreshToken = refreshTokenService.createRefreshToken(user.getUsername());
+        }
+
+        return new AuthResponse(
+                !token.isEmpty() ? token : loginToken, refreshToken.getToken());
+    }
+
+    public User convertToEntity(RegisterRequest reqDTO){
+        return UserFromRequestMapper.INSTANCE.toUser(reqDTO);
     }
 }

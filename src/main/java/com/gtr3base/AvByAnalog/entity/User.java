@@ -68,4 +68,5 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Builder.Default
     private List<Favorite> favorites = new ArrayList<>();
+
 }

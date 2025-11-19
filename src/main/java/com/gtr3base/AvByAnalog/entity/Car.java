@@ -3,19 +3,7 @@ package com.gtr3base.AvByAnalog.entity;
 import com.gtr3base.AvByAnalog.annotations.ValidGenerationYear;
 import com.gtr3base.AvByAnalog.annotations.ValidYear;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Table;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Column;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +13,7 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.*;
 
 @ValidGenerationYear(
         yearField = "year",
@@ -47,6 +36,13 @@ public class Car {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
+    @Builder.Default
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PriceTracking> priceHistory = new ArrayList<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Favorite> favorites = new ArrayList<>();
 
     @NotNull(message = "Car generation is required")
     @ManyToOne(fetch = FetchType.LAZY)

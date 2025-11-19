@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: "AvByAnalog"
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        default_schema: "av_schema"
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+

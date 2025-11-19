@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: postgres
+    password: hypadJ
+
+AvByAnalog:
+  jwt:
+    secret: "3ecf5388e220da9e0f919485deb676d8bee3aec046a779353b463418511ee622"
+    expires-in-min: 60
