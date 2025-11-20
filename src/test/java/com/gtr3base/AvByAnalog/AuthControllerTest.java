@@ -6,9 +6,6 @@ import com.gtr3base.AvByAnalog.dto.AuthResponse;
 import com.gtr3base.AvByAnalog.dto.LoginRequest;
 import com.gtr3base.AvByAnalog.dto.RefreshTokenRequest;
 import com.gtr3base.AvByAnalog.dto.RegisterRequest;
-import com.gtr3base.AvByAnalog.entity.RefreshToken;
-import com.gtr3base.AvByAnalog.entity.User;
-import com.gtr3base.AvByAnalog.enums.UserRole;
 import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
 import com.gtr3base.AvByAnalog.service.AuthService;
 import com.gtr3base.AvByAnalog.service.JwtService;
@@ -21,16 +18,17 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.Optional;
-
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -77,13 +75,13 @@ class AuthControllerTest {
     }
 
     @Test
-    void registerUser_ShouldReturnAuthResponse_WhenRequestIsValid() throws Exception {
+    void registerUser_ShouldReturnCreated_WhenRequestIsValid() throws Exception {
         when(authService.register(any(RegisterRequest.class))).thenReturn(authResponse);
 
         mockMvc.perform(post("/api/auth/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(registerRequest)))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.accessToken").value(authResponse.accessToken()));
     }
 
@@ -100,7 +98,7 @@ class AuthControllerTest {
     }
 
     @Test
-    void login_ShouldReturnAuthResponse_WhenCredentialsAreValid() throws Exception {
+    void login_ShouldReturnOk_WhenCredentialsAreValid() throws Exception {
         when(authService.login(any(LoginRequest.class))).thenReturn(authResponse);
 
         mockMvc.perform(post("/api/auth/login")
@@ -111,46 +109,34 @@ class AuthControllerTest {
     }
 
     @Test
-    void refreshToken_ShouldReturnNewTokens_WhenTokenIsValid() throws Exception {
-        RefreshToken mockTokenEntity = mock(RefreshToken.class);
-        User mockUser = mock(User.class);
-        UserRole mockRole = UserRole.USER;
+    void refreshToken_ShouldReturnOk_WhenTokenIsValid() throws Exception {
+        String newAccessToken = "new-jwt-token";
+        AuthResponse refreshResponse = new AuthResponse(newAccessToken, refreshTokenRequest.token());
 
-        when(refreshTokenService.findByToken(refreshTokenRequest.token()))
-                .thenReturn(Optional.of(mockTokenEntity));
-
-        when(refreshTokenService.verifyExpiration(mockTokenEntity))
-                .thenReturn(mockTokenEntity);
-
-        when(mockTokenEntity.getUser()).thenReturn(mockUser);
-
-        when(mockUser.getId()).thenReturn(1);
-        when(mockUser.getUsername()).thenReturn("testuser");
-        when(mockUser.getRole()).thenReturn(mockRole);
-
-        when(jwtService.generateToken(eq(1), eq("testuser"), eq("USER")))
-                .thenReturn("new-jwt-token");
+        when(refreshTokenService.processRefreshToken(any(RefreshTokenRequest.class)))
+                .thenReturn(refreshResponse);
 
         mockMvc.perform(post("/api/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(refreshTokenRequest)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").value("new-jwt-token"))
+                .andExpect(jsonPath("$.accessToken").value(newAccessToken))
                 .andExpect(jsonPath("$.refreshToken").value(refreshTokenRequest.token()));
     }
 
     @Test
-    void refreshToken_ShouldReturnError_WhenTokenDoesNotExist() {
-        when(refreshTokenService.findByToken(anyString())).thenReturn(Optional.empty());
+    void refreshToken_ShouldThrowException_WhenServiceFails() {
+        when(refreshTokenService.processRefreshToken(any(RefreshTokenRequest.class)))
+                .thenThrow(new RuntimeException("Error while refreshing token"));
 
-        Exception exception = org.junit.jupiter.api.Assertions.assertThrows(jakarta.servlet.ServletException.class, () -> {
+        Exception exception = assertThrows(jakarta.servlet.ServletException.class, () -> {
             mockMvc.perform(post("/api/auth/refresh")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(refreshTokenRequest)));
         });
 
         Throwable rootCause = exception.getCause();
-        org.junit.jupiter.api.Assertions.assertTrue(rootCause instanceof RuntimeException);
-        org.junit.jupiter.api.Assertions.assertEquals("Error while refreshing token", rootCause.getMessage());
+        assertTrue(rootCause instanceof RuntimeException);
+        assertEquals("Error while refreshing token", rootCause.getMessage());
     }
 }

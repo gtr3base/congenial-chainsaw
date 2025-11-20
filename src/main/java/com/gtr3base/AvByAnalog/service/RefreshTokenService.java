@@ -1,5 +1,6 @@
 package com.gtr3base.AvByAnalog.service;
 
+import com.gtr3base.AvByAnalog.dto.*;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.repository.RefreshTokenRepository;
@@ -12,10 +13,12 @@ import java.util.UUID;
 
 @Service
 public class RefreshTokenService {
+    private final JwtService jwtService;
     private final RefreshTokenRepository refreshTokenRepository;
     private final UserRepository userRepository;
 
-    public RefreshTokenService(RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+    public RefreshTokenService(JwtService jwtService, RefreshTokenRepository refreshTokenRepository, UserRepository userRepository) {
+        this.jwtService = jwtService;
         this.refreshTokenRepository = refreshTokenRepository;
         this.userRepository = userRepository;
     }
@@ -48,5 +51,16 @@ public class RefreshTokenService {
             throw new RuntimeException("Token expired");
         }
         return token;
+    }
+
+    public AuthResponse processRefreshToken(RefreshTokenRequest refReq){
+        return findByToken(refReq.token())
+                .map(this::verifyExpiration)
+                .map(RefreshToken::getUser)
+                .map(user -> {
+                    String token = jwtService.generateToken(user.getId(), user.getUsername(), user.getRole().name());
+                    return new AuthResponse(token, refReq.token());
+                })
+                .orElseThrow(() -> new RuntimeException("Error while refreshing token"));
     }
 }

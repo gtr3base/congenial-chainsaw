@@ -1,8 +1,6 @@
 package com.gtr3base.AvByAnalog.service;
 
-import com.gtr3base.AvByAnalog.dto.AuthResponse;
-import com.gtr3base.AvByAnalog.dto.LoginRequest;
-import com.gtr3base.AvByAnalog.dto.RegisterRequest;
+import com.gtr3base.AvByAnalog.dto.*;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.exceptions.*;
@@ -20,7 +18,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
 
-    private String token = "";
+    private String token;
     private RefreshToken refreshToken;
 
     public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
@@ -36,10 +34,10 @@ public class AuthService {
         String email = req.email().trim();
 
         if(userRepository.existsByUsername(username)){
-            throw new LoginException(username);
+            throw new LoginException("Login " + username + " is already in use");
         }
         if(userRepository.existsByEmail(email)){
-            throw new LoginException(email);
+            throw new LoginException("Login " + email + " is already in use");
         }
 
         User user = convertToEntity(req);

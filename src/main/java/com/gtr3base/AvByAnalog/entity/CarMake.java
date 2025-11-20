@@ -34,7 +34,6 @@ public class CarMake {
     @Column(name = "name", nullable = false, unique = true, length = 50)
     private String name;
 
-    @Builder.Default
     @OneToMany(mappedBy = "carMake", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<CarModel> carModels = null ;
+    private List<CarModel> carModels;
 }
