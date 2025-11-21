@@ -1,6 +1,7 @@
 package com.gtr3base.AvByAnalog.service;
 
-import com.gtr3base.AvByAnalog.dto.*;
+import com.gtr3base.AvByAnalog.dto.AuthResponse;
+import com.gtr3base.AvByAnalog.dto.RefreshTokenRequest;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.repository.RefreshTokenRepository;

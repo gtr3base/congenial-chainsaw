@@ -18,7 +18,7 @@ target/
 *.iws
 *.iml
 *.ipr
-application-local.properties
+application-local.yaml
 
 ### NetBeans ###
 /nbproject/private/

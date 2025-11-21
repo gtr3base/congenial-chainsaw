@@ -1,10 +1,12 @@
 package com.gtr3base.AvByAnalog.service;
 
-import com.gtr3base.AvByAnalog.dto.*;
+import com.gtr3base.AvByAnalog.dto.AuthResponse;
+import com.gtr3base.AvByAnalog.dto.LoginRequest;
+import com.gtr3base.AvByAnalog.dto.RegisterRequest;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
-import com.gtr3base.AvByAnalog.exceptions.*;
-import com.gtr3base.AvByAnalog.mappers.*;
+import com.gtr3base.AvByAnalog.exceptions.LoginException;
+import com.gtr3base.AvByAnalog.mappers.UserFromRequestMapper;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -17,15 +19,17 @@ public class AuthService {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenService refreshTokenService;
+    private final UserFromRequestMapper userFromRequestMapper;
 
     private String token;
     private RefreshToken refreshToken;
 
-    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService) {
+    public AuthService(UserRepository userRepository, JwtService jwtService, PasswordEncoder passwordEncoder, RefreshTokenService refreshTokenService, UserFromRequestMapper userFromRequestMapper) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenService = refreshTokenService;
+        this.userFromRequestMapper = userFromRequestMapper;
     }
 
     @Transactional
@@ -71,6 +75,6 @@ public class AuthService {
     }
 
     public User convertToEntity(RegisterRequest reqDTO){
-        return UserFromRequestMapper.INSTANCE.toUser(reqDTO);
+        return userFromRequestMapper.toUser(reqDTO);
     }
 }
