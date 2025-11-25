@@ -62,9 +62,8 @@ public class Car {
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PriceTracking> priceHistory = new ArrayList<>();
 
-    @Builder.Default
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Favorite> favorites = new ArrayList<>();
+    private List<Favorite> favorites;
 
     @NotNull(message = "Car generation is required")
     @ManyToOne(fetch = FetchType.LAZY)

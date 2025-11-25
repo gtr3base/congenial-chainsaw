@@ -4,6 +4,7 @@ import com.gtr3base.AvByAnalog.dto.AuthResponse;
 import com.gtr3base.AvByAnalog.dto.RefreshTokenRequest;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
+import com.gtr3base.AvByAnalog.exceptions.*;
 import com.gtr3base.AvByAnalog.repository.RefreshTokenRepository;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,8 @@ public class RefreshTokenService {
     public RefreshToken verifyExpiration(RefreshToken token){
         if(token.getExpiryDate().compareTo(Instant.now()) < 0){
             refreshTokenRepository.delete(token);
-            throw new RuntimeException("Token expired");
+            throw new TokenRefreshException(token.getToken(),
+                    "Refresh token was expired. Please make a new signin request");
         }
         return token;
     }
@@ -62,6 +64,6 @@ public class RefreshTokenService {
                     String token = jwtService.generateToken(user.getId(), user.getUsername(), user.getRole().name());
                     return new AuthResponse(token, refReq.token());
                 })
-                .orElseThrow(() -> new RuntimeException("Error while refreshing token"));
+                .orElseThrow(() -> new TokenRefreshException(refReq.token(), "Refresh token is not in database!"));
     }
 }

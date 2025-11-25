@@ -40,24 +40,27 @@ public class JwtAuthFilter extends OncePerRequestFilter{
             chain.doFilter(request, response);
             return;
         }
-        logger.debug("Filter is working");
+        log.trace("JwtAuthFilter processing request: [METHOD: {}] [URI: {}]", request.getMethod(), request.getRequestURI());
         String token = header.substring(7);
-        logger.debug("token is " + token);
         try {
             if (!jwt.isExpired(token) && SecurityContextHolder.getContext().getAuthentication() == null) {
                 String username = jwt.extractUsername(token);
-                logger.debug("username is " + username);
+
+                log.trace("Token valid. Extracted username: {}", username);
+
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities()
                 );
-                logger.debug("UserDetails is " + userDetails.getUsername());
+
+                log.trace("Setting SecurityContext for user: {}", userDetails.getUsername());
+
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(auth);
             }
         } catch (Exception e) {
             SecurityContextHolder.clearContext();
-            log.error(e.getMessage());
+            log.error("JWT Authentication error: {}", e.getMessage());
         }
 
         chain.doFilter(request, response);

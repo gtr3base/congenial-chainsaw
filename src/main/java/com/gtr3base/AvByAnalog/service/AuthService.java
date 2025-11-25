@@ -15,6 +15,9 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthService {
+    private static final String USER_ALREADY_EXISTS_MSG = "Login %s is already in use";
+    private static final String INVALID_CREDS_MSG = "Invalid credentials";
+
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
@@ -38,10 +41,10 @@ public class AuthService {
         String email = req.email().trim();
 
         if(userRepository.existsByUsername(username)){
-            throw new LoginException("Login " + username + " is already in use");
+            throw new LoginException(String.format(USER_ALREADY_EXISTS_MSG,username));
         }
         if(userRepository.existsByEmail(email)){
-            throw new LoginException("Login " + email + " is already in use");
+            throw new LoginException(String.format(USER_ALREADY_EXISTS_MSG,username));
         }
 
         User user = convertToEntity(req);
@@ -58,10 +61,10 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest req){
         var user = userRepository.findByLogin(req.login().trim())
-                .orElseThrow(()->new BadCredentialsException("Invalid credentials"));
+                .orElseThrow(()->new BadCredentialsException(INVALID_CREDS_MSG));
 
         if(!passwordEncoder.matches(req.password(),user.getPassword())){
-            throw new BadCredentialsException("Invalid credentials");
+            throw new BadCredentialsException(INVALID_CREDS_MSG);
         }
 
         String loginToken = jwtService.generateToken(user.getId(),user.getUsername(),user.getRole().name());

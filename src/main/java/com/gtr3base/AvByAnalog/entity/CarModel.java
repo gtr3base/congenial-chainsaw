@@ -49,7 +49,6 @@ public class CarModel {
     private String name;
 
     @OneToMany(mappedBy = "carModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Builder.Default
     @Valid
-    private List<CarGeneration> generations = new ArrayList<>();
+    private List<CarGeneration> generations;
 }

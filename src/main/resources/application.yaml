@@ -12,3 +12,9 @@ spring:
   flyway:
     enabled: true
 
+logging:
+  level:
+    com:
+      gtr3base:
+        AvByAnalog:
+          security: TRACE
