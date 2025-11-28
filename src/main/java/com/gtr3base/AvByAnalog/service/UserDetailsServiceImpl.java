@@ -13,6 +13,7 @@ import java.util.Optional;
 public class UserDetailsServiceImpl implements org.springframework.security.core.userdetails.UserDetailsService {
 
     private final UserRepository userRepository;
+    private static final String USERNAME_NOT_FOUND = "User with name: %s not found";
 
     public UserDetailsServiceImpl(UserRepository userRepository) {
         this.userRepository = userRepository;
@@ -23,7 +24,7 @@ public class UserDetailsServiceImpl implements org.springframework.security.core
         Optional<User> u = userRepository.findByUsername(username);
 
         if(u.isEmpty()){
-            throw new UsernameNotFoundException("User with name: "+username+" not found");
+            throw new UsernameNotFoundException(String.format(USERNAME_NOT_FOUND, username));
         }
 
         com.gtr3base.AvByAnalog.entity.User user = u.get();

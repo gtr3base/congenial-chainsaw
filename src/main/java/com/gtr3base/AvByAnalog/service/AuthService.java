@@ -77,7 +77,7 @@ public class AuthService {
                 !token.isEmpty() ? token : loginToken, refreshToken.getToken());
     }
 
-    public User convertToEntity(RegisterRequest reqDTO){
+    private User convertToEntity(RegisterRequest reqDTO){
         return userFromRequestMapper.toUser(reqDTO);
     }
 }

@@ -17,7 +17,7 @@ public @interface ValidLogin {
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 
-    int minUsernameLength() default 0;
+    int minUsernameLength() default 2;
     int maxUsernameLength() default 50;
     int minEmailLength() default 11;
     int maxEmailLength() default 100;

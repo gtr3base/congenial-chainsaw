@@ -7,6 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +20,11 @@ import java.time.Instant;
 @NoArgsConstructor
 @Builder
 @Data
-@Table
+@Table(name = "refresh_token",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"user_id", "token"})
+        }
+)
 public class RefreshToken {
 
     @Id
@@ -31,5 +36,4 @@ public class RefreshToken {
     @OneToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
 }
