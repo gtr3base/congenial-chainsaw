@@ -3,7 +3,9 @@ package com.gtr3base.AvByAnalog.mappers;
 import com.gtr3base.AvByAnalog.dto.RegisterRequest;
 import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.enums.UserRole;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = UserRole.class)
 public interface UserFromRequestMapper {

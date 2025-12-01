@@ -34,7 +34,6 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @ValidGenerationYear(
@@ -58,9 +57,8 @@ public class Car {
     @JoinColumn(name = "user_id", insertable = false, updatable = false)
     private User user;
 
-    @Builder.Default
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<PriceTracking> priceHistory = new ArrayList<>();
+    private List<PriceTracking> priceHistory;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Favorite> favorites;

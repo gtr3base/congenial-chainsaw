@@ -4,7 +4,8 @@ import com.gtr3base.AvByAnalog.dto.AuthResponse;
 import com.gtr3base.AvByAnalog.dto.RefreshTokenRequest;
 import com.gtr3base.AvByAnalog.entity.RefreshToken;
 import com.gtr3base.AvByAnalog.entity.User;
-import com.gtr3base.AvByAnalog.exceptions.*;
+import com.gtr3base.AvByAnalog.exceptions.LoginException;
+import com.gtr3base.AvByAnalog.exceptions.TokenRefreshException;
 import com.gtr3base.AvByAnalog.repository.RefreshTokenRepository;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -39,7 +40,7 @@ public class RefreshTokenService {
                 .builder()
                 .user(user)
                 .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plus(1, ChronoUnit.MINUTES))
+                .expiryDate(Instant.now().plus(60, ChronoUnit.MINUTES))
                 .build();
 
         return refreshTokenRepository.save(rToken);
