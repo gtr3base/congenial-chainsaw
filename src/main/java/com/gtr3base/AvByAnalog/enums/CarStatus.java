@@ -5,17 +5,6 @@ public enum CarStatus {
     APPROVED,
     REJECTED;
 
-    public static CarStatus fromString(String status) {
-        if(status == null){
-            return PENDING;
-        }
-        try {
-            return CarStatus.valueOf(status.toUpperCase());
-        }catch (IllegalArgumentException e){
-            return PENDING;
-        }
-    }
-
     public boolean isPending(){
         return this == PENDING;
     }
