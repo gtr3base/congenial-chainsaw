@@ -40,7 +40,7 @@ public class RefreshTokenService {
                 .builder()
                 .user(user)
                 .token(UUID.randomUUID().toString())
-                .expiryDate(Instant.now().plus(60, ChronoUnit.MINUTES))
+                .expiryDate(Instant.now().plus(7, ChronoUnit.DAYS))
                 .build();
 
         return refreshTokenRepository.save(rToken);
