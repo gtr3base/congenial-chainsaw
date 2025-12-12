@@ -1,7 +1,8 @@
 package com.gtr3base.AvByAnalog.controller;
 
-import com.gtr3base.AvByAnalog.dto.CarRequest;
+import com.gtr3base.AvByAnalog.dto.CarDTO;
 import com.gtr3base.AvByAnalog.dto.CarResponse;
+import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
 import com.gtr3base.AvByAnalog.dto.CarStatusUpdateDto;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import com.gtr3base.AvByAnalog.service.CarService;
@@ -23,15 +24,15 @@ public class CarController {
     private final CarService carService;
 
     @PostMapping
-    public ResponseEntity<CarResponse> addCar(@RequestBody @Valid CarRequest carRequest, Authentication authentication) {
-        CarResponse car = carService.createCar(carRequest,authentication);
+    public ResponseEntity<CarResponse> addCar(@RequestBody @Valid CarDTO carDTO, Authentication authentication) {
+        CarResponse car = carService.createCar(carDTO,authentication);
 
         return ResponseEntity.status(HttpStatus.CREATED).body(car);
     }
 
-    @PostMapping("/status")
-    public ResponseEntity<List<CarResponse>> getCarsByStatus(@RequestParam @NotNull CarStatus status, Authentication authentication) {
-        return ResponseEntity.ok(carService.getCarsByStatus(status, authentication));
+    @GetMapping("/search")
+    public ResponseEntity<List<CarResponse>> getCarsByStatus(@ModelAttribute CarSearchFilter filter, Authentication authentication) {
+        return ResponseEntity.ok(carService.searchCars(filter, authentication));
     }
 
     @GetMapping("/{id}")
@@ -58,13 +59,13 @@ public class CarController {
         return ResponseEntity.ok(car);
     }
 
-    @DeleteMapping("/delete/{vin}")
-    public ResponseEntity<CarResponse> deleteCar(@PathVariable String vin, Authentication authentication) {
-        return ResponseEntity.ok(carService.deleteCar(vin, authentication));
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<CarResponse> deleteCar(@PathVariable Long id, Authentication authentication) {
+        return ResponseEntity.ok(carService.deleteCar(id, authentication));
     }
 
-    @PutMapping
-    public ResponseEntity<CarResponse> updateCar(@RequestBody @Valid CarRequest carRequest, Authentication authentication) {
-        return ResponseEntity.ok(carService.updateCar(carRequest, authentication));
+    @PutMapping("/{id}")
+    public ResponseEntity<CarResponse> updateCar(@PathVariable Long id, @RequestBody @Valid CarDTO carDTO, Authentication authentication) {
+        return ResponseEntity.ok(carService.updateCar(id, carDTO, authentication));
     }
 }

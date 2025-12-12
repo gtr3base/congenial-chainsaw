@@ -1,8 +1,12 @@
 package com.gtr3base.AvByAnalog.dto;
 
+import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
-import lombok.*;
-import org.springframework.http.HttpStatus;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
@@ -29,4 +33,6 @@ public class CarResponse {
     private Integer year;
 
     private CarStatus carStatus;
+
+    private CarAction carAction;
 }

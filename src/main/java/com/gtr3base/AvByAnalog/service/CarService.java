@@ -1,10 +1,11 @@
 package com.gtr3base.AvByAnalog.service;
 
-import com.gtr3base.AvByAnalog.dto.CarRequest;
+import com.gtr3base.AvByAnalog.dto.CarDTO;
 import com.gtr3base.AvByAnalog.dto.CarResponse;
+import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
+import com.gtr3base.AvByAnalog.dto.CarSpecification;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.CarGeneration;
-import com.gtr3base.AvByAnalog.entity.CarMake;
 import com.gtr3base.AvByAnalog.entity.CarModel;
 import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
@@ -12,25 +13,23 @@ import com.gtr3base.AvByAnalog.enums.UserRole;
 import com.gtr3base.AvByAnalog.exceptions.CarGenerationNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.CarTransitionException;
-import com.gtr3base.AvByAnalog.exceptions.MakeNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.ModelNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.RoleAccessDeniedException;
 import com.gtr3base.AvByAnalog.exceptions.ValidYearForGenerationException;
 import com.gtr3base.AvByAnalog.mappers.CarFromRequestMapper;
 import com.gtr3base.AvByAnalog.repository.CarGenerationRepository;
-import com.gtr3base.AvByAnalog.repository.CarMakeRepository;
 import com.gtr3base.AvByAnalog.repository.CarModelRepository;
 import com.gtr3base.AvByAnalog.repository.CarRepository;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import com.gtr3base.AvByAnalog.entity.User;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -61,7 +60,7 @@ public class CarService {
     }
 
     @Transactional
-    public CarResponse createCar(@NotNull CarRequest carRequest, Authentication authentication) {
+    public CarResponse createCar(@Valid CarDTO carRequest, Authentication authentication) {
         Car carToSave = carFromRequestMapper.toCar(carRequest);
 
         enrichCar(carRequest, carToSave, authentication);
@@ -71,22 +70,9 @@ public class CarService {
         return carFromRequestMapper.toResponse(savedCar);
     }
 
-    @Transactional
-    public CarResponse deleteCar(String vin, Authentication authentication) {
-
-        String login = authentication.getName();
-
-        Car car = carRepository.findByVinCode(vin)
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_VIN, vin)));
-
-        UserRole userRole = car.getUser().getRole();
-
-        if(!car.getUser().getUsername().equals(login)
-                || !car.getUser().getEmail().equals(login)) {
-            if(!userRole.isAdmin()){
-                throw new RoleAccessDeniedException(String.format(ACCESS_DENIED_FOR_USER_ROLE, userRole));
-            }
-        }
+    public CarResponse deleteCar(Long id, Authentication authentication) {
+        Car car = carRepository.findCarById(id)
+                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id)));
 
         car.setPendingAction(CarAction.DELETE);
 
@@ -95,12 +81,12 @@ public class CarService {
     }
 
     @Transactional
-    public CarResponse updateCar(@Valid CarRequest carRequest, Authentication authentication) {
+    public CarResponse updateCar(Long carId, @Valid CarDTO carRequest, Authentication authentication) {
         String login = authentication.getName();
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, login)));
 
-        Car car = carRepository.findByVinCode(carRequest.vinCode())
+        Car car = carRepository.findById(carId)
                 .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_VIN, carRequest.vinCode())));
 
         if(!user.getRole().isAdmin() && !car.getUser().getId().equals(user.getId())) {
@@ -160,25 +146,24 @@ public class CarService {
     }
 
     @Transactional(readOnly = true)
-    public List<CarResponse> getCarsByStatus(CarStatus carStatus, Authentication authentication) {
+    public List<CarResponse> searchCars(CarSearchFilter filter, Authentication authentication) {
         String login = authentication.getName();
 
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, login)));
 
-        List<Car> cars;
+        boolean isAdmin = (user.getRole() == UserRole.ADMIN);
 
-        if(user.getRole() == UserRole.ADMIN){
-             cars = findCarsByStatus(carStatus);
-        }else{
-            cars = findAllByUserIdAndStatus(user.getId(), carStatus);
-        }
+        Specification<Car> spec = CarSpecification.getSpecs(user.getId(), isAdmin, filter);
+
+        List<Car> cars = carRepository.findAll(spec);
+
         return cars.stream()
                 .map(carFromRequestMapper::toResponse)
                 .collect(Collectors.toList());
     }
 
-    private void enrichCar(CarRequest carRequest, Car carToSave, Authentication authentication) {
+    private void enrichCar(CarDTO carRequest, Car carToSave, Authentication authentication) {
         User user = userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, authentication.getName())));
         carToSave.setUser(user);
@@ -210,13 +195,6 @@ public class CarService {
         return carRepository.findCarById(id).orElseThrow(
                 () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
         );
-    }
-
-    private List<Car> findCarsByStatus(CarStatus carStatus){
-        return carRepository.findCarsByStatus(carStatus);
-    }
-    private List<Car> findAllByUserIdAndStatus(Integer userId, CarStatus carStatus){
-        return carRepository.findCarsByUserIdAndStatus(userId, carStatus);
     }
 
     private Car findCarByUser(Long userId){

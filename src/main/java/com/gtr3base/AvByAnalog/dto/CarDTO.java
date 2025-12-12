@@ -1,10 +1,11 @@
 package com.gtr3base.AvByAnalog.dto;
 
-import com.gtr3base.AvByAnalog.annotations.ValidYear;
+import com.gtr3base.AvByAnalog.annotations.ValidYearByModelId;
 import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 
-public record CarRequest(
+@ValidYearByModelId
+public record CarDTO(
         @NotNull(message = "Make ID is required") Long makeId,
 
         @NotNull(message = "Model ID is required") Long modelId,
@@ -13,7 +14,6 @@ public record CarRequest(
 
         @NotNull
         @Min(value = 1886)
-        @ValidYear
         Integer year,
 
         @NotNull
