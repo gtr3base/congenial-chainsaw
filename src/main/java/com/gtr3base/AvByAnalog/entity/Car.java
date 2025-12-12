@@ -2,6 +2,7 @@ package com.gtr3base.AvByAnalog.entity;
 
 import com.gtr3base.AvByAnalog.annotations.ValidGenerationYear;
 import com.gtr3base.AvByAnalog.annotations.ValidYear;
+import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -54,7 +55,7 @@ public class Car {
 
     @NotNull(message = "User is required null")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -65,7 +66,7 @@ public class Car {
 
     @NotNull(message = "Car generation is required")
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "generation_id", insertable = false, updatable = false)
+    @JoinColumn(name = "generation_id")
     private CarGeneration generation;
 
     @Min(value = 1886, message = "Year must be after 1886")
@@ -86,6 +87,9 @@ public class Car {
     @Column(name = "status", nullable = false)
     private CarStatus status = CarStatus.PENDING;
 
+    @Enumerated(EnumType.STRING)
+    private CarAction pendingAction;
+
     @NotBlank(message = "VIN code is required")
     @Size(min = 17, max = 17, message = "VIN code must be exactly 17 characters")
     @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "Invalid VIN code format")
@@ -98,6 +102,11 @@ public class Car {
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @NotNull(message = "Car Model is required")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "model_id", nullable = false)
+    private CarModel carModel;
 
     public boolean isValidYearForGeneration(){
         if(generation == null){
