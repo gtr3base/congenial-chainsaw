@@ -21,6 +21,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -213,26 +215,30 @@ public class CarControllerTest {
     }
 
     @Test
-    void searchCars_ShouldReturnListOfCars_WhenRequestIsValid() throws Exception {
+    void searchCars_ShouldReturnPageOfCars_WhenRequestIsValid() throws Exception {
         CarResponse response = new CarResponse();
         response.setId(1L);
         response.setCarMake("BMW");
 
         List<CarResponse> responses = List.of(response);
 
-        when(carService.searchCars(any(CarSearchFilter.class), any())).thenReturn(responses);
+        Page<CarResponse> pageResponse = new PageImpl<>(responses);
+
+        when(carService.searchCars(any(CarSearchFilter.class),any(), any())).thenReturn(pageResponse);
 
         mockMvc.perform(get("/api/cars/search")
                         .param("status", "APPROVED")
                         .param("carMake", "BMW")
                         .param("minPrice", "5000"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.size()").value(1))
-                .andExpect(jsonPath("$[0].carMake").value("BMW"));
+                .andDo(print())
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].carMake").value("BMW"))
+                .andExpect(jsonPath("$.totalElements").value(1));
 
         ArgumentCaptor<CarSearchFilter> filterCaptor = ArgumentCaptor.forClass(CarSearchFilter.class);
 
-        verify(carService).searchCars(filterCaptor.capture(), any());
+        verify(carService).searchCars(filterCaptor.capture(),any(),any());
 
         CarSearchFilter capturedFilter = filterCaptor.getValue();
 

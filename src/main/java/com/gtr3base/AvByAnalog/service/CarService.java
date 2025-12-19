@@ -7,6 +7,7 @@ import com.gtr3base.AvByAnalog.dto.CarSpecification;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.CarGeneration;
 import com.gtr3base.AvByAnalog.entity.CarModel;
+import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import com.gtr3base.AvByAnalog.enums.UserRole;
@@ -23,7 +24,8 @@ import com.gtr3base.AvByAnalog.repository.CarRepository;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import com.gtr3base.AvByAnalog.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -33,16 +35,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.ACCESS_DENIED_FOR_USER_ROLE;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_GENERATION_NOT_FOUND;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.INVALID_CAR_TRANSITION;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.INVALID_YEAR_GENERATION;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.MODEL_NOT_FOUND;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.USER_NOT_FOUND;
+
 @Service
 public class CarService {
-    private static final String USER_NOT_FOUND = "User not found with ID: %s";
-    private static final String MODEL_NOT_FOUND = "Model not found with ID: %s";
-    private static final String CAR_GENERATION_NOT_FOUND = "Generation not found with ID: %s";
-    private static final String CAR_NOT_FOUND_BY_ID = "Car with ID: %s not found";
-    private static final String INVALID_CAR_TRANSITION = "Invalid transition: Cannot change status from %s to %s";
-    private static final String CAR_NOT_FOUND_BY_VIN = "Invalid vin: %s not found";
-    private static final String ACCESS_DENIED_FOR_USER_ROLE = "Access denied for user with role: %s";
-    private static final String INVALID_YEAR_GENERATION = "The year is not valid for the selected car generation";
 
     private final CarRepository carRepository;
     private final CarFromRequestMapper carFromRequestMapper;
@@ -57,6 +59,33 @@ public class CarService {
         this.userRepository = userRepository;
         this.carModelRepository = carModelRepository;
         this.carGenerationRepository = carGenerationRepository;
+    }
+
+    private Car findCarById(Long id){
+        return carRepository.findCarById(id).orElseThrow(
+                () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
+        );
+    }
+
+    private Car findCarByUser(Long userId){
+        return carRepository.findCarByUserId(Math.toIntExact(userId))
+                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, userId)));
+    }
+
+    private void enrichCar(CarDTO carRequest, Car carToSave, Authentication authentication) {
+        User user = userRepository.findByLogin(authentication.getName())
+                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, authentication.getName())));
+        carToSave.setUser(user);
+
+        CarModel model = carModelRepository.findById(carRequest.modelId())
+                .orElseThrow(() -> new ModelNotFoundException(String.format(MODEL_NOT_FOUND, carRequest.modelId())));
+        carToSave.setCarModel(model);
+
+        CarGeneration generation = carGenerationRepository.findById(carRequest.generationId())
+                .orElseThrow(() -> new CarGenerationNotFoundException(String.format(CAR_GENERATION_NOT_FOUND, carRequest.generationId())));
+        carToSave.setGeneration(generation);
+
+        carToSave.setPendingAction(CarAction.CREATE);
     }
 
     @Transactional
@@ -87,7 +116,7 @@ public class CarService {
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, login)));
 
         Car car = carRepository.findById(carId)
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_VIN, carRequest.vinCode())));
+                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, carRequest.vinCode())));
 
         if(!user.getRole().isAdmin() && !car.getUser().getId().equals(user.getId())) {
             throw new RoleAccessDeniedException(String.format(ACCESS_DENIED_FOR_USER_ROLE, user.getRole()));
@@ -145,8 +174,9 @@ public class CarService {
         return carFromRequestMapper.toResponse(car);
     }
 
-    @Transactional(readOnly = true)
-    public List<CarResponse> searchCars(CarSearchFilter filter, Authentication authentication) {
+    public Page<CarResponse> searchCars(CarSearchFilter filter,
+                                        Pageable pageable,
+                                        Authentication authentication) {
         String login = authentication.getName();
 
         User user = userRepository.findByLogin(login)
@@ -156,28 +186,11 @@ public class CarService {
 
         Specification<Car> spec = CarSpecification.getSpecs(user.getId(), isAdmin, filter);
 
-        List<Car> cars = carRepository.findAll(spec);
+        Page<Car> cars = carRepository.findAll(spec, pageable);
 
-        return cars.stream()
-                .map(carFromRequestMapper::toResponse)
-                .collect(Collectors.toList());
+        return cars.map(carFromRequestMapper::toResponse);
     }
 
-    private void enrichCar(CarDTO carRequest, Car carToSave, Authentication authentication) {
-        User user = userRepository.findByLogin(authentication.getName())
-                .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, authentication.getName())));
-        carToSave.setUser(user);
-
-        CarModel model = carModelRepository.findById(carRequest.modelId())
-                .orElseThrow(() -> new ModelNotFoundException(String.format(MODEL_NOT_FOUND, carRequest.modelId())));
-        carToSave.setCarModel(model);
-
-        CarGeneration generation = carGenerationRepository.findById(carRequest.generationId())
-                .orElseThrow(() -> new CarGenerationNotFoundException(String.format(CAR_GENERATION_NOT_FOUND, carRequest.generationId())));
-        carToSave.setGeneration(generation);
-
-        carToSave.setPendingAction(CarAction.CREATE);
-    }
 
     public CarResponse getCarById(@NotNull Long id) {
         Car car = findCarById(id);
@@ -189,16 +202,5 @@ public class CarService {
         Car car = findCarById(id);
 
         return car.getStatus().getAvailableTransitions();
-    }
-
-    private Car findCarById(Long id){
-        return carRepository.findCarById(id).orElseThrow(
-                () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
-        );
-    }
-
-    private Car findCarByUser(Long userId){
-        return carRepository.findCarByUserId(Math.toIntExact(userId))
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, userId)));
     }
 }

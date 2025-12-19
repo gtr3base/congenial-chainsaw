@@ -2,6 +2,7 @@ SET search_path TO av_schema, public;
 
 CREATE TYPE user_role AS ENUM('USER', 'ADMIN');
 CREATE TYPE car_status AS ENUM('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE pending_action AS ENUM('CREATE', 'DELETE', 'UPDATE', 'NONE');
 
 CREATE TABLE users (
                        id SERIAL PRIMARY KEY,

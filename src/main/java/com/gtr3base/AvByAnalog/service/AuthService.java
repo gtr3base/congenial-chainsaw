@@ -35,6 +35,10 @@ public class AuthService {
         this.userFromRequestMapper = userFromRequestMapper;
     }
 
+    private User convertToEntity(RegisterRequest reqDTO){
+        return userFromRequestMapper.toUser(reqDTO);
+    }
+
     @Transactional
     public AuthResponse register(RegisterRequest req){
         String username = req.username().trim();
@@ -77,7 +81,4 @@ public class AuthService {
                 !token.isEmpty() ? token : loginToken, refreshToken.getToken());
     }
 
-    private User convertToEntity(RegisterRequest reqDTO){
-        return userFromRequestMapper.toUser(reqDTO);
-    }
 }

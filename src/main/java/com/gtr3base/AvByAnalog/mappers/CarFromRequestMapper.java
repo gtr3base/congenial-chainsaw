@@ -6,9 +6,8 @@ import com.gtr3base.AvByAnalog.entity.Car;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
-import org.springframework.http.HttpStatus;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = HttpStatus.class)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface CarFromRequestMapper {
 
     @Mapping(source = "carModel.name", target = "carModel")

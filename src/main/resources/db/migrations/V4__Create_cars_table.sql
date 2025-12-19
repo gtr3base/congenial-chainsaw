@@ -5,6 +5,7 @@ CREATE TABLE cars (
                       user_id INT REFERENCES users(id) ON DELETE CASCADE,
                       model_id INT NOT NULL REFERENCES car_models(id) ON DELETE RESTRICT,
                       generation_id INT REFERENCES car_generations(id) ON DELETE SET NULL,
+                      pending_action pending_action,
                       year INT NOT NULL CHECK (year >= 1886),
                       price DECIMAL(10, 2) NOT NULL CHECK(price > 0),
                       description TEXT,
