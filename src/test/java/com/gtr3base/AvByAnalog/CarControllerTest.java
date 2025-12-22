@@ -74,6 +74,7 @@ public class CarControllerTest {
 
     private CarDTO carRequest;
     private CarResponse carResponse;
+    private CarDTO carDTO;
     private CarStatusUpdateDto statusUpdateDto;
 
 
@@ -101,6 +102,16 @@ public class CarControllerTest {
                 .userId(1L)
                 .username("Test")
                 .vinCode("ABC12345678901234")
+                .build();
+
+        carDTO = CarDTO.builder()
+                .generationId(1L)
+                .makeId(1L)
+                .modelId(1L)
+                .price(new BigDecimal("15000.00"))
+                .year(2018)
+                .vinCode("ABC12345678901234")
+                .description("Great condition")
                 .build();
 
         statusUpdateDto = new CarStatusUpdateDto(CarStatus.APPROVED);
@@ -143,13 +154,15 @@ public class CarControllerTest {
 
     @Test
     void getCarById_ShouldReturnCar_WhenIdExists() throws Exception {
-        when(carService.getCarById(1L)).thenReturn(carResponse);
+        when(carService.getCarById(1L)).thenReturn(carDTO);
 
         mockMvc.perform(get("/api/cars/{id}", 1L))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.carModel").value("F30 3-series"));
+                .andExpect(jsonPath("$.modelId").value(1L))
+                .andExpect(jsonPath("$.makeId").value(1L))
+                .andExpect(jsonPath("$.generationId").value(1L))
+                .andExpect(jsonPath("$.vinCode").value("ABC12345678901234"));
     }
 
     @Test
@@ -224,7 +237,7 @@ public class CarControllerTest {
 
         Page<CarResponse> pageResponse = new PageImpl<>(responses);
 
-        when(carService.searchCars(any(CarSearchFilter.class),any(), any())).thenReturn(pageResponse);
+        when(carService.searchCars(any(CarSearchFilter.class),any())).thenReturn(pageResponse);
 
         mockMvc.perform(get("/api/cars/search")
                         .param("status", "APPROVED")
@@ -238,7 +251,7 @@ public class CarControllerTest {
 
         ArgumentCaptor<CarSearchFilter> filterCaptor = ArgumentCaptor.forClass(CarSearchFilter.class);
 
-        verify(carService).searchCars(filterCaptor.capture(),any(),any());
+        verify(carService).searchCars(filterCaptor.capture(),any());
 
         CarSearchFilter capturedFilter = filterCaptor.getValue();
 
@@ -253,7 +266,7 @@ public class CarControllerTest {
         deletedCar.setId(1L);
         deletedCar.setCarAction(CarAction.DELETE);
 
-        when(carService.deleteCar(eq(1L), any())).thenReturn(deletedCar);
+        when(carService.deleteCar(eq(1L))).thenReturn(deletedCar);
 
         mockMvc.perform(delete("/api/cars/delete/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))

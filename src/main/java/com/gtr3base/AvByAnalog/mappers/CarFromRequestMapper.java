@@ -30,4 +30,9 @@ public interface CarFromRequestMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "pendingAction", ignore = true)
     Car toCar(CarDTO carRequest);
+
+    @Mapping(source = "carModel.id", target = "modelId")
+    @Mapping(source = "carModel.carMake.id", target = "makeId")
+    @Mapping(source = "generation.id", target = "generationId")
+    CarDTO toCarDTO(Car car);
 }

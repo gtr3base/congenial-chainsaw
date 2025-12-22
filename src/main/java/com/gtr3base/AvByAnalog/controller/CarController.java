@@ -25,8 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/api/cars")
 @RequiredArgsConstructor
@@ -42,13 +40,13 @@ public class CarController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<CarResponse>> getCarsByStatus(@ModelAttribute CarSearchFilter filter, @PageableDefault Pageable pageable, Authentication authentication) {
-        return ResponseEntity.ok(carService.searchCars(filter, pageable, authentication));
+    public ResponseEntity<Page<CarResponse>> getCarsByStatus(@ModelAttribute CarSearchFilter filter, @PageableDefault Pageable pageable) {
+        return ResponseEntity.ok(carService.searchCars(filter, pageable));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CarResponse> getCarById(@PathVariable @NotNull Long id) {
-        CarResponse car = carService.getCarById(id);
+    public ResponseEntity<CarDTO> getCarById(@PathVariable @NotNull Long id) {
+        CarDTO car = carService.getCarById(id);
 
         return ResponseEntity.ok(car);
     }
@@ -71,8 +69,8 @@ public class CarController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<CarResponse> deleteCar(@PathVariable Long id, Authentication authentication) {
-        return ResponseEntity.ok(carService.deleteCar(id, authentication));
+    public ResponseEntity<CarResponse> deleteCar(@PathVariable Long id) {
+        return ResponseEntity.ok(carService.deleteCar(id));
     }
 
     @PutMapping("/{id}")
