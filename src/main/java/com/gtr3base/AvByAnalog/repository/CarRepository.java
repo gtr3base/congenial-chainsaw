@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
+import java.util.List;
 import java.util.Optional;
 
 public interface CarRepository extends PagingAndSortingRepository<Car, Long>, JpaSpecificationExecutor<Car>, JpaRepository<Car, Long> {
@@ -12,4 +13,6 @@ public interface CarRepository extends PagingAndSortingRepository<Car, Long>, Jp
     Optional<Car> findCarById(Long id);
 
     Optional<Car> findCarByUserId(Integer userId);
+
+    Optional<List<Car>> findCarsByUserId(Integer userId);
 }

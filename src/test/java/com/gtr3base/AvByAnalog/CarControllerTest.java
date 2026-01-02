@@ -6,7 +6,6 @@ import com.gtr3base.AvByAnalog.dto.CarDTO;
 import com.gtr3base.AvByAnalog.dto.CarResponse;
 import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
 import com.gtr3base.AvByAnalog.dto.CarStatusUpdateDto;
-import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import com.gtr3base.AvByAnalog.mappers.CarFromRequestMapper;
 import com.gtr3base.AvByAnalog.repository.CarModelRepository;
@@ -261,18 +260,9 @@ public class CarControllerTest {
 
     @Test
     void deleteCar_ShouldReturnCar_WhenRequestIsValid() throws Exception {
-        CarResponse deletedCar = new CarResponse();
-
-        deletedCar.setId(1L);
-        deletedCar.setCarAction(CarAction.DELETE);
-
-        when(carService.deleteCar(eq(1L))).thenReturn(deletedCar);
-
         mockMvc.perform(delete("/api/cars/delete/{id}", 1L)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1L))
-                .andExpect(jsonPath("$.carAction").value("DELETE"));
+                .andExpect(status().isNoContent());
     }
 }

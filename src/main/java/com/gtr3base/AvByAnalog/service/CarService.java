@@ -31,6 +31,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.ACCESS_DENIED_FOR_USER_ROLE;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_GENERATION_NOT_FOUND;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
@@ -68,17 +70,15 @@ public class CarService {
         return carFromRequestMapper.toResponse(savedCar);
     }
 
-    public CarResponse deleteCar(Long id) {
+    public void deleteCarById(Long id) {
         Car car = carRepository.findCarById(id)
                 .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id)));
 
         car.setPendingAction(CarAction.DELETE);
 
         carRepository.save(car);
-        return carFromRequestMapper.toResponse(car);
     }
 
-    @Transactional
     public CarResponse updateCar(Long carId, @Valid CarDTO carRequest, Authentication authentication) {
         String login = authentication.getName();
         User user = userRepository.findByLogin(login)
@@ -164,8 +164,15 @@ public class CarService {
         return car.getStatus().getAvailableTransitions();
     }
 
-    private Car findCarByUser(Long userId){
-        return carRepository.findCarByUserId(Math.toIntExact(userId))
+    public CarDTO findCarById(Long id){
+        Car car = carRepository.findCarById(id).orElseThrow(
+                () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
+        );
+        return carFromRequestMapper.toCarDTO(car);
+    }
+
+    private List<Car> findCarsByUser(Long userId){
+        return carRepository.findCarsByUserId((Math.toIntExact(userId)))
                 .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, userId)));
     }
 
@@ -183,12 +190,5 @@ public class CarService {
         carToSave.setGeneration(generation);
 
         carToSave.setPendingAction(CarAction.CREATE);
-    }
-
-    public CarDTO findCarById(Long id){
-        Car car = carRepository.findCarById(id).orElseThrow(
-                () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
-        );
-        return carFromRequestMapper.toCarDTO(car);
     }
 }

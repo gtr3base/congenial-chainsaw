@@ -59,7 +59,7 @@ public class CarController {
     }
 
     @PutMapping("/admin/status/{id}")
-    public ResponseEntity<CarResponse> approveCarById(
+    public ResponseEntity<CarResponse> changeStatusById(
             @PathVariable @NotNull Long id,
             @RequestBody @Valid CarStatusUpdateDto carStatusUpdateDto
     ){
@@ -70,7 +70,8 @@ public class CarController {
 
     @DeleteMapping("/delete/{id}")
     public ResponseEntity<CarResponse> deleteCar(@PathVariable Long id) {
-        return ResponseEntity.ok(carService.deleteCar(id));
+        carService.deleteCarById(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
 
     @PutMapping("/{id}")
