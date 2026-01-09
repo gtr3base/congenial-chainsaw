@@ -1,7 +1,7 @@
 package com.gtr3base.AvByAnalog.service;
 
+import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.CarResponse;
 import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
 import com.gtr3base.AvByAnalog.dto.CarSpecification;
 import com.gtr3base.AvByAnalog.entity.Car;
@@ -27,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -60,7 +61,8 @@ public class CarService {
     }
 
     @Transactional
-    public CarResponse createCar(@Valid CarDTO carRequest, Authentication authentication) {
+    public CarDTO createCar(@Valid CarCreateRequest carRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Car carToSave = carFromRequestMapper.toCar(carRequest);
 
         enrichCar(carRequest, carToSave, authentication);
@@ -79,7 +81,8 @@ public class CarService {
         carRepository.save(car);
     }
 
-    public CarResponse updateCar(Long carId, @Valid CarDTO carRequest, Authentication authentication) {
+    public CarDTO updateCar(Long carId, @Valid CarCreateRequest carRequest) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String login = authentication.getName();
         User user = userRepository.findByLogin(login)
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, login)));
@@ -120,7 +123,7 @@ public class CarService {
     }
 
     @Transactional
-    public CarResponse updateCarStatus(Long carId, CarStatus newStatus) {
+    public CarDTO updateCarStatus(Long carId, CarStatus newStatus) {
         Car car = carFromRequestMapper.toCar(findCarById(carId));
 
         if(!car.getStatus().canTransitionTo(newStatus)){
@@ -143,8 +146,8 @@ public class CarService {
         return carFromRequestMapper.toResponse(car);
     }
 
-    public Page<CarResponse> searchCars(CarSearchFilter filter,
-                                        Pageable pageable) {
+    public Page<CarDTO> searchCars(CarSearchFilter filter,
+                                   Pageable pageable) {
 
         Specification<Car> spec = CarSpecification.getSpecs(filter);
 
@@ -154,7 +157,7 @@ public class CarService {
     }
 
 
-    public CarDTO getCarById(@NotNull Long id) {
+    public CarCreateRequest getCarById(@NotNull Long id) {
         return findCarById(id);
     }
 
@@ -164,19 +167,19 @@ public class CarService {
         return car.getStatus().getAvailableTransitions();
     }
 
-    public CarDTO findCarById(Long id){
+    public CarCreateRequest findCarById(Long id){
         Car car = carRepository.findCarById(id).orElseThrow(
                 () -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, id))
         );
-        return carFromRequestMapper.toCarDTO(car);
+        return carFromRequestMapper.toCarCreateRequest(car);
     }
 
-    private List<Car> findCarsByUser(Long userId){
-        return carRepository.findCarsByUserId((Math.toIntExact(userId)))
+    private List<Car> findCarsByUser(Integer userId){
+        return carRepository.findCarsByUserId(userId)
                 .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, userId)));
     }
 
-    private void enrichCar(CarDTO carRequest, Car carToSave, Authentication authentication) {
+    private void enrichCar(CarCreateRequest carRequest, Car carToSave, Authentication authentication) {
         User user = userRepository.findByLogin(authentication.getName())
                 .orElseThrow(() -> new UsernameNotFoundException(String.format(USER_NOT_FOUND, authentication.getName())));
         carToSave.setUser(user);

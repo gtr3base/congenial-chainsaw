@@ -1,6 +1,7 @@
 package com.gtr3base.AvByAnalog.repository;
 
 import com.gtr3base.AvByAnalog.entity.Car;
+import com.gtr3base.AvByAnalog.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.PagingAndSortingRepository;
@@ -15,4 +16,6 @@ public interface CarRepository extends PagingAndSortingRepository<Car, Long>, Jp
     Optional<Car> findCarByUserId(Integer userId);
 
     Optional<List<Car>> findCarsByUserId(Integer userId);
+
+    Long user(User user);
 }

@@ -1,38 +1,38 @@
 package com.gtr3base.AvByAnalog.dto;
 
-import com.gtr3base.AvByAnalog.annotations.ValidYearByModelId;
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import com.gtr3base.AvByAnalog.enums.CarAction;
+import com.gtr3base.AvByAnalog.enums.CarStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Builder
-@ValidYearByModelId
-public record CarDTO(
-        @NotNull(message = "Make ID is required") Long makeId,
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
+public class CarDTO {
+    private Long id;
+    private Long userId;
+    private String username;
 
-        @NotNull(message = "Model ID is required") Long modelId,
+    private String carMake;
+    private String carModel;
+    private String carGeneration;
 
-        @NotNull(message = "Generation ID is required") Long generationId,
+    private String vinCode;
 
-        @NotNull
-        @Min(value = 1886)
-        Integer year,
+    private String description;
 
-        @NotNull
-        @DecimalMin(value = "0.0")
-        BigDecimal price,
+    private BigDecimal price;
 
-        @NotBlank
-        String description,
+    private Integer year;
 
-        @NotNull
-        @Size(min = 17, max = 17)
-        @Pattern(regexp = "^[A-HJ-NPR-Z0-9]{17}$", message = "Invalid VIN code format")
-        String vinCode
-) {}
+    private CarStatus carStatus;
+
+    private CarAction carAction;
+}

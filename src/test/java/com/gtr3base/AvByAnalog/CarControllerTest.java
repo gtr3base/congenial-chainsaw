@@ -2,8 +2,8 @@ package com.gtr3base.AvByAnalog;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gtr3base.AvByAnalog.controller.CarController;
+import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.CarResponse;
 import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
 import com.gtr3base.AvByAnalog.dto.CarStatusUpdateDto;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
@@ -71,15 +71,15 @@ public class CarControllerTest {
     @MockitoBean
     private CarFromRequestMapper carFromRequestMapper;
 
-    private CarDTO carRequest;
-    private CarResponse carResponse;
+    private CarCreateRequest carRequest;
     private CarDTO carDTO;
+    private CarCreateRequest carCreateRequest;
     private CarStatusUpdateDto statusUpdateDto;
 
 
     @BeforeEach
     void setUp() {
-        carRequest = new CarDTO(
+        carRequest = new CarCreateRequest(
                 1L,
                 1L,
                 1L,
@@ -89,7 +89,7 @@ public class CarControllerTest {
                 "ABC12345678901234"
         );
 
-        carResponse = CarResponse.builder()
+        carDTO = CarDTO.builder()
                 .id(1L)
                 .carMake("BMW")
                 .carModel("F30 3-series")
@@ -103,7 +103,7 @@ public class CarControllerTest {
                 .vinCode("ABC12345678901234")
                 .build();
 
-        carDTO = CarDTO.builder()
+        carCreateRequest = CarCreateRequest.builder()
                 .generationId(1L)
                 .makeId(1L)
                 .modelId(1L)
@@ -118,8 +118,8 @@ public class CarControllerTest {
 
     @Test
     void addCar_ShouldReturnCreated_WhenRequestIsValid() throws Exception {
-        when(carService.createCar(any(CarDTO.class), any()))
-                .thenReturn(carResponse);
+        when(carService.createCar(any(CarCreateRequest.class)))
+                .thenReturn(carDTO);
 
         mockMvc.perform(post("/api/cars")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -134,7 +134,7 @@ public class CarControllerTest {
 
     @Test
     void addCar_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
-        CarDTO invalidRequest = new CarDTO(
+        CarCreateRequest invalidRequest = new CarCreateRequest(
                 1L,
                 1L,
                 1L,
@@ -153,7 +153,7 @@ public class CarControllerTest {
 
     @Test
     void getCarById_ShouldReturnCar_WhenIdExists() throws Exception {
-        when(carService.getCarById(1L)).thenReturn(carDTO);
+        when(carService.getCarById(1L)).thenReturn(carCreateRequest);
 
         mockMvc.perform(get("/api/cars/{id}", 1L))
                 .andDo(print())
@@ -180,7 +180,7 @@ public class CarControllerTest {
 
     @Test
     void approveCarById_ShouldReturnUpdatedCar_WhenValid() throws Exception {
-        CarResponse approvedResponse = CarResponse.builder()
+        CarDTO approvedResponse = CarDTO.builder()
                 .id(1L)
                 .carStatus(CarStatus.APPROVED)
                 .build();
@@ -206,7 +206,7 @@ public class CarControllerTest {
 
     @Test
     void updateCar_ShouldReturnUpdatedCar_WhenRequestIsValid() throws Exception {
-        CarResponse updatedResponse = CarResponse.builder()
+        CarDTO updatedResponse = CarDTO.builder()
                 .id(1L)
                 .carMake("BMW")
                 .description("Updated Description")
@@ -214,7 +214,7 @@ public class CarControllerTest {
                 .vinCode("ABC12345678901234")
                 .build();
 
-        when(carService.updateCar(eq(1L), any(CarDTO.class), any()))
+        when(carService.updateCar(eq(1L), any(CarCreateRequest.class)))
                 .thenReturn(updatedResponse);
 
         mockMvc.perform(put("/api/cars/{id}", 1L)
@@ -228,13 +228,13 @@ public class CarControllerTest {
 
     @Test
     void searchCars_ShouldReturnPageOfCars_WhenRequestIsValid() throws Exception {
-        CarResponse response = new CarResponse();
+        CarDTO response = new CarDTO();
         response.setId(1L);
         response.setCarMake("BMW");
 
-        List<CarResponse> responses = List.of(response);
+        List<CarDTO> responses = List.of(response);
 
-        Page<CarResponse> pageResponse = new PageImpl<>(responses);
+        Page<CarDTO> pageResponse = new PageImpl<>(responses);
 
         when(carService.searchCars(any(CarSearchFilter.class),any())).thenReturn(pageResponse);
 

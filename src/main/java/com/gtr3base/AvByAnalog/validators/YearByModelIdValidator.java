@@ -1,7 +1,7 @@
 package com.gtr3base.AvByAnalog.validators;
 
 import com.gtr3base.AvByAnalog.annotations.ValidYearByModelId;
-import com.gtr3base.AvByAnalog.dto.CarDTO;
+import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.entity.CarGeneration;
 import com.gtr3base.AvByAnalog.entity.CarModel;
 import com.gtr3base.AvByAnalog.repository.CarModelRepository;
@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Component
-public class YearByModelIdValidator implements ConstraintValidator<ValidYearByModelId, CarDTO> {
+public class YearByModelIdValidator implements ConstraintValidator<ValidYearByModelId, CarCreateRequest> {
 
     private final CarModelRepository carModelRepository;
 
@@ -29,7 +29,7 @@ public class YearByModelIdValidator implements ConstraintValidator<ValidYearByMo
 
     @Override
     @Transactional(readOnly = true)
-    public boolean isValid(CarDTO dto, ConstraintValidatorContext context) {
+    public boolean isValid(CarCreateRequest dto, ConstraintValidatorContext context) {
         if (dto == null || dto.modelId() == null || dto.year() == null) {
             return true;
         }

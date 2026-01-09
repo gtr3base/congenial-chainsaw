@@ -1,7 +1,7 @@
 package com.gtr3base.AvByAnalog.mappers;
 
+import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.CarResponse;
 import com.gtr3base.AvByAnalog.entity.Car;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -17,7 +17,7 @@ public interface CarFromRequestMapper {
     @Mapping(source = "carModel.carMake.name", target = "carMake")
     @Mapping(source = "status", target = "carStatus")
     @Mapping(source = "pendingAction", target = "carAction")
-    CarResponse toResponse(Car car);
+    CarDTO toResponse(Car car);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "carModel", ignore = true)
@@ -29,10 +29,10 @@ public interface CarFromRequestMapper {
     @Mapping(target = "favorites", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "pendingAction", ignore = true)
-    Car toCar(CarDTO carRequest);
+    Car toCar(CarCreateRequest carRequest);
 
     @Mapping(source = "carModel.id", target = "modelId")
     @Mapping(source = "carModel.carMake.id", target = "makeId")
     @Mapping(source = "generation.id", target = "generationId")
-    CarDTO toCarDTO(Car car);
+    CarCreateRequest toCarCreateRequest(Car car);
 }
