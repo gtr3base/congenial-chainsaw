@@ -60,7 +60,6 @@ public class CarService {
         this.carGenerationRepository = carGenerationRepository;
     }
 
-    @Transactional
     public CarDTO createCar(@Valid CarCreateRequest carRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         Car carToSave = carFromRequestMapper.toCar(carRequest);
