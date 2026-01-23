@@ -228,9 +228,7 @@ public class CarControllerTest {
 
     @Test
     void searchCars_ShouldReturnPageOfCars_WhenRequestIsValid() throws Exception {
-        CarDTO response = new CarDTO();
-        response.setId(1L);
-        response.setCarMake("BMW");
+        CarDTO response = CarDTO.builder().id(1L).carMake("BMW").build();
 
         List<CarDTO> responses = List.of(response);
 

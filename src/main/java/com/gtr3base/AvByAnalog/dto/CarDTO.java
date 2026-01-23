@@ -2,37 +2,29 @@ package com.gtr3base.AvByAnalog.dto;
 
 import com.gtr3base.AvByAnalog.enums.CarAction;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 
 @Builder
-@AllArgsConstructor
-@NoArgsConstructor
-@Getter
-@Setter
-public class CarDTO {
-    private Long id;
-    private Long userId;
-    private String username;
+public record CarDTO (
+    Long id,
+    Long userId,
+    String username,
 
-    private String carMake;
-    private String carModel;
-    private String carGeneration;
+    String carMake,
+    String carModel,
+    String carGeneration,
 
-    private String vinCode;
+    String vinCode,
 
-    private String description;
+    String description,
 
-    private BigDecimal price;
+    BigDecimal price,
 
-    private Integer year;
+    Integer year,
 
-    private CarStatus carStatus;
+    CarStatus carStatus,
 
-    private CarAction carAction;
-}
+    CarAction carAction
+){}

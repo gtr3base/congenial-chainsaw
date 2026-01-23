@@ -23,6 +23,7 @@ import com.gtr3base.AvByAnalog.repository.CarRepository;
 import com.gtr3base.AvByAnalog.repository.UserRepository;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -42,6 +43,7 @@ import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.INVALID_YEAR_GENER
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.MODEL_NOT_FOUND;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.USER_NOT_FOUND;
 
+@RequiredArgsConstructor
 @Service
 public class CarService {
 
@@ -51,14 +53,6 @@ public class CarService {
     private final UserRepository userRepository;
     private final CarModelRepository carModelRepository;
     private final CarGenerationRepository carGenerationRepository;
-
-    public CarService(CarRepository carRepository, CarFromRequestMapper carFromRequestMapper, UserRepository userRepository, CarModelRepository carModelRepository, CarGenerationRepository carGenerationRepository) {
-        this.carRepository = carRepository;
-        this.carFromRequestMapper = carFromRequestMapper;
-        this.userRepository = userRepository;
-        this.carModelRepository = carModelRepository;
-        this.carGenerationRepository = carGenerationRepository;
-    }
 
     public CarDTO createCar(@Valid CarCreateRequest carRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
