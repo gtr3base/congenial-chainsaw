@@ -50,4 +50,7 @@ public class CarModel {
     @OneToMany(mappedBy = "carModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Valid
     private List<CarGeneration> generations;
+
+    @OneToMany(mappedBy = "carModel", fetch = FetchType.LAZY)
+    private List<Car> cars;
 }

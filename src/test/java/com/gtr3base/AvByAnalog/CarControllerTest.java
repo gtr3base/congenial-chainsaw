@@ -1,0 +1,266 @@
+package com.gtr3base.AvByAnalog;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gtr3base.AvByAnalog.controller.CarController;
+import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
+import com.gtr3base.AvByAnalog.dto.CarDTO;
+import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
+import com.gtr3base.AvByAnalog.dto.CarStatusUpdateDto;
+import com.gtr3base.AvByAnalog.enums.CarStatus;
+import com.gtr3base.AvByAnalog.mappers.CarFromRequestMapper;
+import com.gtr3base.AvByAnalog.repository.CarModelRepository;
+import com.gtr3base.AvByAnalog.repository.CarRepository;
+import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
+import com.gtr3base.AvByAnalog.service.CarService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(
+        controllers = CarController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthFilter.class
+        )
+)
+@AutoConfigureMockMvc(addFilters = false)
+public class CarControllerTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private CarService carService;
+
+    @MockitoBean
+    private CarRepository carRepository;
+
+    @MockitoBean
+    private CarModelRepository carModelRepository;
+
+    @MockitoBean
+    private CarFromRequestMapper carFromRequestMapper;
+
+    private CarCreateRequest carRequest;
+    private CarDTO carDTO;
+    private CarCreateRequest carCreateRequest;
+    private CarStatusUpdateDto statusUpdateDto;
+
+
+    @BeforeEach
+    void setUp() {
+        carRequest = new CarCreateRequest(
+                1L,
+                1L,
+                1L,
+                2020,
+                new BigDecimal("15000.00"),
+                "Great condition",
+                "ABC12345678901234"
+        );
+
+        carDTO = CarDTO.builder()
+                .id(1L)
+                .carMake("BMW")
+                .carModel("F30 3-series")
+                .carGeneration("6th-gen")
+                .carStatus(CarStatus.PENDING)
+                .price(new BigDecimal("15000.00"))
+                .year(2018)
+                .description("Great condition")
+                .userId(1L)
+                .username("Test")
+                .vinCode("ABC12345678901234")
+                .build();
+
+        carCreateRequest = CarCreateRequest.builder()
+                .generationId(1L)
+                .makeId(1L)
+                .modelId(1L)
+                .price(new BigDecimal("15000.00"))
+                .year(2018)
+                .vinCode("ABC12345678901234")
+                .description("Great condition")
+                .build();
+
+        statusUpdateDto = new CarStatusUpdateDto(CarStatus.APPROVED);
+    }
+
+    @Test
+    void addCar_ShouldReturnCreated_WhenRequestIsValid() throws Exception {
+        when(carService.createCar(any(CarCreateRequest.class)))
+                .thenReturn(carDTO);
+
+        mockMvc.perform(post("/api/cars")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(carRequest)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.carModel").value("F30 3-series"))
+                .andExpect(jsonPath("$.carMake").value("BMW"))
+                .andExpect(jsonPath("$.vinCode").value("ABC12345678901234"))
+                .andExpect(jsonPath("$.carStatus").value(CarStatus.PENDING.name()));
+    }
+
+    @Test
+    void addCar_ShouldReturnBadRequest_WhenValidationFails() throws Exception {
+        CarCreateRequest invalidRequest = new CarCreateRequest(
+                1L,
+                1L,
+                1L,
+                2020,
+                new BigDecimal("15000.00"),
+                "Great condition",
+                null
+        );
+
+        mockMvc.perform(post("/api/cars")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(invalidRequest)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void getCarById_ShouldReturnCar_WhenIdExists() throws Exception {
+        when(carService.getCarById(1L)).thenReturn(carCreateRequest);
+
+        mockMvc.perform(get("/api/cars/{id}", 1L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.modelId").value(1L))
+                .andExpect(jsonPath("$.makeId").value(1L))
+                .andExpect(jsonPath("$.generationId").value(1L))
+                .andExpect(jsonPath("$.vinCode").value("ABC12345678901234"));
+    }
+
+    @Test
+    void getCarTransitionById_ShouldReturnStatusArray() throws Exception {
+        CarStatus[] transitions = {CarStatus.APPROVED, CarStatus.REJECTED};
+
+        when(carService.getAvailableTransitions(1L)).thenReturn(transitions);
+
+        mockMvc.perform(get("/api/cars/admin/transition/{id}", 1L))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0]").value(CarStatus.APPROVED.name()))
+                .andExpect(jsonPath("$[1]").value(CarStatus.REJECTED.name()));
+    }
+
+    @Test
+    void approveCarById_ShouldReturnUpdatedCar_WhenValid() throws Exception {
+        CarDTO approvedResponse = CarDTO.builder()
+                .id(1L)
+                .carStatus(CarStatus.APPROVED)
+                .build();
+
+        when(carService.updateCarStatus(eq(1L), eq(CarStatus.APPROVED)))
+                .thenReturn(approvedResponse);
+
+        mockMvc.perform(put("/api/cars/admin/status/{id}", 1L)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(statusUpdateDto)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.carStatus").value("APPROVED"));
+    }
+
+    @Test
+    void approveCarById_ShouldReturnBadRequest_WhenBodyMissing() throws Exception {
+        mockMvc.perform(put("/api/cars/admin/status/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void updateCar_ShouldReturnUpdatedCar_WhenRequestIsValid() throws Exception {
+        CarDTO updatedResponse = CarDTO.builder()
+                .id(1L)
+                .carMake("BMW")
+                .description("Updated Description")
+                .price(new BigDecimal("14000.00"))
+                .vinCode("ABC12345678901234")
+                .build();
+
+        when(carService.updateCar(eq(1L), any(CarCreateRequest.class)))
+                .thenReturn(updatedResponse);
+
+        mockMvc.perform(put("/api/cars/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(carRequest)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.description").value("Updated Description"))
+                .andExpect(jsonPath("$.price").value("14000.0"));
+    }
+
+    @Test
+    void searchCars_ShouldReturnPageOfCars_WhenRequestIsValid() throws Exception {
+        CarDTO response = CarDTO.builder().id(1L).carMake("BMW").build();
+
+        List<CarDTO> responses = List.of(response);
+
+        Page<CarDTO> pageResponse = new PageImpl<>(responses);
+
+        when(carService.searchCars(any(CarSearchFilter.class),any())).thenReturn(pageResponse);
+
+        mockMvc.perform(get("/api/cars/search")
+                        .param("status", "APPROVED")
+                        .param("carMake", "BMW")
+                        .param("minPrice", "5000"))
+                .andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.content.size()").value(1))
+                .andExpect(jsonPath("$.content[0].carMake").value("BMW"))
+                .andExpect(jsonPath("$.totalElements").value(1));
+
+        ArgumentCaptor<CarSearchFilter> filterCaptor = ArgumentCaptor.forClass(CarSearchFilter.class);
+
+        verify(carService).searchCars(filterCaptor.capture(),any());
+
+        CarSearchFilter capturedFilter = filterCaptor.getValue();
+
+        assertEquals(CarStatus.APPROVED, capturedFilter.getStatus());
+        assertEquals("BMW", capturedFilter.getCarMake());
+    }
+
+    @Test
+    void deleteCar_ShouldReturnCar_WhenRequestIsValid() throws Exception {
+        mockMvc.perform(delete("/api/cars/delete/{id}", 1L)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print())
+                .andExpect(status().isNoContent());
+    }
+}
