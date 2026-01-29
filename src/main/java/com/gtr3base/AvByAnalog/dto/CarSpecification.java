@@ -36,6 +36,10 @@ public class CarSpecification {
                 predicates.add(criteriaBuilder.equal(root.get("carMake").get("name"), filter.getCarMake()));
             }
 
+            if(filter.getGeneration() != null){
+                predicates.add(criteriaBuilder.equal(root.get("generation").get("name"), filter.getGeneration()));
+            }
+
             if(filter.getCarModel() != null){
                 predicates.add(criteriaBuilder.equal(root.get("carModel").get("name"), filter.getCarModel()));
             }
