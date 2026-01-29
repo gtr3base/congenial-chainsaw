@@ -1,7 +1,7 @@
 package com.gtr3base.AvByAnalog.service;
 
-import com.gtr3base.AvByAnalog.dto.AverageCarPriceSearchFilter;
-import com.gtr3base.AvByAnalog.dto.CarSpecification;
+import com.gtr3base.AvByAnalog.dto.filter.AverageCarPriceSearchFilter;
+import com.gtr3base.AvByAnalog.dto.specification.CarSpecification;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.repository.CarRepository;
 import lombok.RequiredArgsConstructor;

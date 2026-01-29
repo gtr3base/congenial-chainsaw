@@ -2,8 +2,8 @@ package com.gtr3base.AvByAnalog.service;
 
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
-import com.gtr3base.AvByAnalog.dto.CarSpecification;
+import com.gtr3base.AvByAnalog.dto.filter.CarSearchFilter;
+import com.gtr3base.AvByAnalog.dto.specification.CarSpecification;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.CarGeneration;
 import com.gtr3base.AvByAnalog.entity.CarModel;

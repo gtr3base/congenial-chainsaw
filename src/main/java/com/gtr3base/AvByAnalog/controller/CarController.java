@@ -2,8 +2,8 @@ package com.gtr3base.AvByAnalog.controller;
 
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.CarSearchFilter;
 import com.gtr3base.AvByAnalog.dto.CarStatusUpdateDto;
+import com.gtr3base.AvByAnalog.dto.filter.CarSearchFilter;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import com.gtr3base.AvByAnalog.service.CarService;
 import jakarta.validation.Valid;

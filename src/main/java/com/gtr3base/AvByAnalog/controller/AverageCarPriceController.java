@@ -1,6 +1,6 @@
 package com.gtr3base.AvByAnalog.controller;
 
-import com.gtr3base.AvByAnalog.dto.AverageCarPriceSearchFilter;
+import com.gtr3base.AvByAnalog.dto.filter.AverageCarPriceSearchFilter;
 import com.gtr3base.AvByAnalog.service.AverageCarPriceService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,7 +1,7 @@
 package com.gtr3base.AvByAnalog;
 
 import com.gtr3base.AvByAnalog.controller.AverageCarPriceController;
-import com.gtr3base.AvByAnalog.dto.AverageCarPriceSearchFilter;
+import com.gtr3base.AvByAnalog.dto.filter.AverageCarPriceSearchFilter;
 import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
 import com.gtr3base.AvByAnalog.service.AverageCarPriceService;
 import org.junit.jupiter.api.Test;
