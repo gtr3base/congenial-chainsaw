@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class    AverageCarPriceSearchFilter{
+public class AverageCarPriceSearchFilter{
     private String carModel;
     private String carMake;
     private String generation;
