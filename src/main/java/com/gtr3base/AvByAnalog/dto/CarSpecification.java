@@ -28,4 +28,27 @@ public class CarSpecification {
             return criterialBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+    public static Specification<Car> getSpecs(AverageCarPriceSearchFilter filter){
+        return ((root, query, criteriaBuilder) ->  {
+            List<Predicate> predicates = new ArrayList<>();
+
+            if(filter.getCarMake() != null){
+                predicates.add(criteriaBuilder.equal(root.get("carMake").get("name"), filter.getCarMake()));
+            }
+
+            if(filter.getGeneration() != null){
+                predicates.add(criteriaBuilder.equal(root.get("generation").get("name"), filter.getGeneration()));
+            }
+
+            if(filter.getCarModel() != null){
+                predicates.add(criteriaBuilder.equal(root.get("carModel").get("name"), filter.getCarModel()));
+            }
+
+            if(filter.getYear() != null){
+                predicates.add(criteriaBuilder.equal(root.get("year"), filter.getYear()));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        });
+    }
 }
