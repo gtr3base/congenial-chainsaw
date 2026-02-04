@@ -7,6 +7,6 @@ import java.math.BigDecimal;
 @Builder
 public record AveragePriceResponse(
         BigDecimal averagePrice,
-        boolean success
+        Boolean success
         ) {
 }
