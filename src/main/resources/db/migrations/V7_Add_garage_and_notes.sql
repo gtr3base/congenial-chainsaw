@@ -1,0 +1,20 @@
+SET search_path TO av_schema, public;
+
+CREATE TABLE garage(
+    id BIGSERIAL PRIMARY KEY,
+    user_id INT NOT NULL UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    locked BOOLEAN DEFAULT FALSE
+);
+
+ALTER TABLE cars
+ADD COLUMN garage_id BIGINT REFERENCES garage(id) ON DELETE SET NULL;
+
+CREATE TABLE note(
+    id BIGSERIAL PRIMARY KEY,
+    user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    garage_id INT NOT NULL REFERENCES garage(id) ON DELETE CASCADE,
+    car_id INT REFERENCES cars(id) ON DELETE CASCADE,
+    text TEXT,
+    content BYTEA,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
