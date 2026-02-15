@@ -6,8 +6,12 @@ import com.gtr3base.AvByAnalog.dto.NoteDTO;
 import com.gtr3base.AvByAnalog.dto.NoteResponse;
 import com.gtr3base.AvByAnalog.dto.NoteUpdateRequest;
 import com.gtr3base.AvByAnalog.entity.NoteContent;
+import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
+import com.gtr3base.AvByAnalog.exceptions.CarNotInGarageException;
+import com.gtr3base.AvByAnalog.exceptions.NoteNotFoundException;
 import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
 import com.gtr3base.AvByAnalog.service.NoteService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +26,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -118,5 +125,48 @@ public class NoteControllerTest {
 
         mockMvc.perform(get("/api/note/all"))
                 .andExpect(jsonPath("$[0].content.text").value("Note text example"));
+    }
+
+    @Test
+    void createNote_shouldThrowCarNotFound_WhenCarIdInvalid() throws Exception {
+        String errorMessage = "Car with ID 1 not found";
+        when(noteService.createNote(any(NoteDTO.class)))
+                .thenThrow(new CarNotFoundException(errorMessage));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(post("/api/note")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(noteDTO)));
+        });
+
+        assertInstanceOf(CarNotFoundException.class, exception.getCause());
+    }
+
+    @Test
+    void createNote_shouldThrowCarNotInGarage_WhenCarBelongsToOtherGarage() throws Exception {
+        when(noteService.createNote(any(NoteDTO.class)))
+                .thenThrow(new CarNotInGarageException("Car not in garage"));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(post("/api/note")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(noteDTO)));
+        });
+
+        assertInstanceOf(CarNotInGarageException.class, exception.getCause());
+    }
+
+    @Test
+    void updateNote_shouldThrowNoteNotFound_WhenIdInvalid() throws Exception {
+        when(noteService.updateNote(any(NoteUpdateRequest.class)))
+                .thenThrow(new NoteNotFoundException("Note not found"));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(put("/api/note")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(noteUpdateRequest)));
+        });
+
+        assertInstanceOf(NoteNotFoundException.class, exception.getCause());
     }
 }

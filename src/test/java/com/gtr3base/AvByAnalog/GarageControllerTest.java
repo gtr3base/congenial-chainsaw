@@ -12,10 +12,13 @@ import com.gtr3base.AvByAnalog.entity.CarModel;
 import com.gtr3base.AvByAnalog.entity.Note;
 import com.gtr3base.AvByAnalog.entity.NoteContent;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
+import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
+import com.gtr3base.AvByAnalog.exceptions.GarageNotFoundException;
 import com.gtr3base.AvByAnalog.mappers.CarFromRequestMapper;
 import com.gtr3base.AvByAnalog.mappers.NoteMapper;
 import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
 import com.gtr3base.AvByAnalog.service.GarageService;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +36,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -217,5 +222,60 @@ public class GarageControllerTest {
                         .content(objectMapper.writeValueAsString(carCreateRequest)))
                 .andDo(print())
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void addGarage_shouldThrowCarNotFound_WhenCarIdInvalid() throws Exception {
+        String errorMessage = "Car with ID 1 not found";
+        when(garageService.addGarage(any(GarageDTO.class)))
+                .thenThrow(new CarNotFoundException(errorMessage));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(post("/api/garage")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(garageDTO)));
+        });
+
+        assertInstanceOf(CarNotFoundException.class, exception.getCause());
+    }
+
+    @Test
+    void getMyGarage_shouldThrowGarageNotFound_WhenUserHasNoGarage() throws Exception {
+        when(garageService.getMyGarage())
+                .thenThrow(new GarageNotFoundException("Garage not found for user"));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(get("/api/garage"));
+        });
+
+        assertInstanceOf(GarageNotFoundException.class, exception.getCause());
+    }
+
+    @Test
+    void updateGarage_shouldThrowGarageNotFound_WhenGarageIdInvalid() throws Exception {
+        when(garageService.updateGarage(any(GarageDTO.class)))
+                .thenThrow(new GarageNotFoundException("Garage not found"));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(put("/api/garage")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(garageDTO)));
+        });
+
+        assertInstanceOf(GarageNotFoundException.class, exception.getCause());
+    }
+
+    @Test
+    void updateGarage_shouldThrowCarNotFound_WhenCarToAddInvalid() throws Exception {
+        when(garageService.updateGarage(any(GarageDTO.class)))
+                .thenThrow(new CarNotFoundException("Car not found"));
+
+        ServletException exception = assertThrows(ServletException.class, () -> {
+            mockMvc.perform(put("/api/garage")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(garageDTO)));
+        });
+
+        assertInstanceOf(CarNotFoundException.class, exception.getCause());
     }
 }
