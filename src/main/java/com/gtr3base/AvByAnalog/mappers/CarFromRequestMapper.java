@@ -17,7 +17,7 @@ public interface CarFromRequestMapper {
     @Mapping(source = "carModel.carMake.name", target = "carMake")
     @Mapping(source = "status", target = "carStatus")
     @Mapping(source = "pendingAction", target = "carAction")
-    CarDTO toResponse(Car car);
+    CarDTO toCarDTO(Car car);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "carModel", ignore = true)
@@ -29,6 +29,7 @@ public interface CarFromRequestMapper {
     @Mapping(target = "favorites", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "pendingAction", ignore = true)
+    @Mapping(target = "garage", ignore = true)
     Car toCar(CarCreateRequest carRequest);
 
     @Mapping(source = "carModel.id", target = "modelId")

@@ -10,7 +10,7 @@ import org.mapstruct.ReportingPolicy;
 public interface NoteMapper {
     @Mapping(source = "garage.id", target = "garageId")
     @Mapping(source = "car.id", target = "carId")
-    @Mapping(source = "user.login", target = "createdBy")
     @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "noteContent", target = "content")
     NoteResponse mapToNoteResponse(Note note);
 }

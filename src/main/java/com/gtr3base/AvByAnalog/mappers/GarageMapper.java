@@ -6,7 +6,9 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring",
+        unmappedTargetPolicy = ReportingPolicy.ERROR,
+        uses = {CarFromRequestMapper.class, NoteMapper.class})
 public interface GarageMapper {
     @Mapping(source = "cars", target = "cars")
     @Mapping(source = "notes", target = "notes")

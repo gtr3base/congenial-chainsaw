@@ -35,7 +35,7 @@ public class Garage {
     private List<Note> notes = new ArrayList<>();
 
     @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Car> car;
+    private List<Car> cars;
 
     @Column(name = "locked")
     private boolean locked;

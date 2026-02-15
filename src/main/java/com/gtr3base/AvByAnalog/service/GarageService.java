@@ -56,7 +56,7 @@ public class GarageService {
 
         car.setGarage(garage);
 
-        garage.getCar().add(car);
+        garage.getCars().add(car);
         garageRepository.save(garage);
     }
 
@@ -70,7 +70,7 @@ public class GarageService {
 
         Garage garage = Garage.builder()
                 .locked(garageDTO.locked())
-                .car(cars)
+                .cars(cars)
                 .user(user)
                 .build();
 
@@ -97,13 +97,13 @@ public class GarageService {
         Car carToAdd = carRepository.findCarById(garageDTO.carId())
                         .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID,  garageDTO.carId())));
 
-        List<Car> cars = garage.getCar();
+        List<Car> cars = garage.getCars();
 
         cars.add(carToAdd);
 
         garage.setLocked(garageDTO.locked());
         garage.setNotes(notes);
-        garage.setCar(cars);
+        garage.setCars(cars);
 
         garageRepository.save(garage);
 
