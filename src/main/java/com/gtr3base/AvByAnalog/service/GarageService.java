@@ -114,7 +114,7 @@ public class GarageService {
         garageRepository.deleteById(id);
     }
 
-    public GarageResponse getMyGarage(){
+    public GarageResponse getGarageByUserId(){
         User user = getCurrentUser();
         Garage garage = garageRepository.findByUser(user)
                 .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND,  user.getUsername())));

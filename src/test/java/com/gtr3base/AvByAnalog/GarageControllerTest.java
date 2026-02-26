@@ -14,8 +14,6 @@ import com.gtr3base.AvByAnalog.entity.NoteContent;
 import com.gtr3base.AvByAnalog.enums.CarStatus;
 import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.GarageNotFoundException;
-import com.gtr3base.AvByAnalog.mappers.CarFromRequestMapper;
-import com.gtr3base.AvByAnalog.mappers.NoteMapper;
 import com.gtr3base.AvByAnalog.security.JwtAuthFilter;
 import com.gtr3base.AvByAnalog.service.GarageService;
 import jakarta.servlet.ServletException;
@@ -26,7 +24,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,11 +38,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(
@@ -178,7 +175,7 @@ public class GarageControllerTest {
     }
     @Test
     void getMyGarage_ShouldReturnGarageResponse() throws Exception {
-        when(garageService.getMyGarage())
+        when(garageService.getGarageByUserId())
                 .thenReturn(garageResponse);
 
         mockMvc.perform(get("/api/garage"))
@@ -241,7 +238,7 @@ public class GarageControllerTest {
 
     @Test
     void getMyGarage_shouldThrowGarageNotFound_WhenUserHasNoGarage() throws Exception {
-        when(garageService.getMyGarage())
+        when(garageService.getGarageByUserId())
                 .thenThrow(new GarageNotFoundException("Garage not found for user"));
 
         ServletException exception = assertThrows(ServletException.class, () -> {

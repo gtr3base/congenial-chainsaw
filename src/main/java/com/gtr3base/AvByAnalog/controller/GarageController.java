@@ -29,8 +29,8 @@ public class GarageController {
     }
 
     @GetMapping
-    public ResponseEntity<GarageResponse> getMyGarage() {
-        return ResponseEntity.ok(garageService.getMyGarage());
+    public ResponseEntity<GarageResponse> getGarageByUserId() {
+        return ResponseEntity.ok(garageService.getGarageByUserId());
     }
 
     @PutMapping
