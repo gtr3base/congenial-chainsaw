@@ -1,6 +1,6 @@
 package com.gtr3base.AvByAnalog.mappers;
 
-import com.gtr3base.AvByAnalog.dto.GarageResponse;
+import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.entity.Garage;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -10,8 +10,8 @@ import org.mapstruct.ReportingPolicy;
         unmappedTargetPolicy = ReportingPolicy.ERROR,
         uses = {CarFromRequestMapper.class, NoteMapper.class})
 public interface GarageMapper {
-    @Mapping(source = "cars", target = "cars")
+    @Mapping(source = "car", target = "car")
     @Mapping(source = "notes", target = "notes")
     @Mapping(source = "id", target = "garageId")
-    GarageResponse toGarageResponse(Garage garage);
+    GarageInfoResponse toGarageInfoResponse(Garage garage);
 }

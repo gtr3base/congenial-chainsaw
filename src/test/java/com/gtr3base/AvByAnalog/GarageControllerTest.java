@@ -4,8 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gtr3base.AvByAnalog.controller.GarageController;
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
-import com.gtr3base.AvByAnalog.dto.GarageDTO;
-import com.gtr3base.AvByAnalog.dto.GarageResponse;
+import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
+import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.dto.NoteResponse;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.CarModel;
@@ -63,7 +63,7 @@ public class GarageControllerTest {
     @MockitoBean
     private GarageService garageService;
 
-    private GarageResponse garageResponse;
+    private GarageInfoResponse garageInfoResponse;
 
     private NoteResponse noteResponse;
 
@@ -75,7 +75,7 @@ public class GarageControllerTest {
 
     private CarDTO carDTO;
 
-    private GarageDTO garageDTO;
+    private GarageInfoDTO garageInfoDTO;
 
     private CarCreateRequest carCreateRequest;
 
@@ -128,15 +128,14 @@ public class GarageControllerTest {
                 .vinCode("ABC12345678901234")
                 .build();
 
-        garageResponse = GarageResponse
-                .builder()
+        garageInfoResponse = GarageInfoResponse.builder()
                 .garageId(1L)
                 .notes(List.of(noteResponse))
-                .cars(List.of(carDTO))
+                .car(carDTO)
                 .locked(true)
                 .build();
 
-        garageDTO = GarageDTO.builder()
+        garageInfoDTO = GarageInfoDTO.builder()
                 .content(content)
                 .garageId(1L)
                 .noteId(1L)
@@ -157,63 +156,60 @@ public class GarageControllerTest {
     }
 
     @Test
-    void addGarage_ShouldReturnGarageResponse() throws Exception {
-        when(garageService.addGarage(any(GarageDTO.class)))
-                .thenReturn(garageResponse);
+    void addGarage_ShouldReturnGarageInfoResponse() throws Exception {
+        when(garageService.addGarage(any(GarageInfoDTO.class)))
+                .thenReturn(garageInfoResponse);
 
         mockMvc.perform(post("/api/garage")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(garageDTO)))
+                        .content(objectMapper.writeValueAsString(garageInfoDTO)))
                 .andDo(print())
                 .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.cars", hasSize(1)))
-                .andExpect(jsonPath("$.cars[0].id").value(1))
-                .andExpect(jsonPath("$.cars[0].carMake").value("BMW"));
+                .andExpect(jsonPath("$.car.id").value(1))
+                .andExpect(jsonPath("$.car.carMake").value("BMW"));
 
     }
     @Test
-    void getMyGarage_ShouldReturnGarageResponse() throws Exception {
+    void getMyGarage_ShouldReturnGarageInfoResponse() throws Exception {
         when(garageService.getGarageByUserId())
-                .thenReturn(garageResponse);
+                .thenReturn(garageInfoResponse);
 
         mockMvc.perform(get("/api/garage"))
                 .andDo(print())
                 .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.cars", hasSize(1)))
-                .andExpect(jsonPath("$.cars[0].id").value(1))
-                .andExpect(jsonPath("$.cars[0].carMake").value("BMW"));
+                .andExpect(jsonPath("$.car.id").value(1))
+                .andExpect(jsonPath("$.car.carMake").value("BMW"));
 }
 
     @Test
-    void updateGarage_shouldReturnGarageResponse() throws Exception {
-        when(garageService.updateGarage(any(GarageDTO.class)))
-                .thenReturn(garageResponse);
+    void updateGarage_shouldReturnGarageInfoResponse() throws Exception {
+        when(garageService.updateGarage(any(GarageInfoDTO.class)))
+                .thenReturn(garageInfoResponse);
 
         mockMvc.perform(put("/api/garage")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(garageDTO)))
+                .content(objectMapper.writeValueAsString(garageInfoDTO)))
                 .andDo(print())
                 .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.cars", hasSize(1)))
-                .andExpect(jsonPath("$.cars[0].id").value(1))
-                .andExpect(jsonPath("$.cars[0].carMake").value("BMW"));
+                .andExpect(jsonPath("$.car.id").value(1))
+                .andExpect(jsonPath("$.car .carMake").value("BMW"));
     }
 
     @Test
-    void deleteGarage_shouldReturnGarageResponse() throws Exception {
+    void deleteGarage_shouldReturnGarageInfoResponse() throws Exception {
         mockMvc.perform(delete("/api/garage/{id}",1L))
                 .andDo(print())
                 .andExpect(status().isOk());
     }
 
     @Test
-    void addCarToGarage_shouldReturnGarageResponse() throws Exception {
+    void addCarToGarage_shouldReturnGarageInfoResponse() throws Exception {
         mockMvc.perform(post("/api/garage/add-car")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(carCreateRequest)))
@@ -224,13 +220,13 @@ public class GarageControllerTest {
     @Test
     void addGarage_shouldThrowCarNotFound_WhenCarIdInvalid() throws Exception {
         String errorMessage = "Car with ID 1 not found";
-        when(garageService.addGarage(any(GarageDTO.class)))
+        when(garageService.addGarage(any(GarageInfoDTO.class)))
                 .thenThrow(new CarNotFoundException(errorMessage));
 
         ServletException exception = assertThrows(ServletException.class, () -> {
             mockMvc.perform(post("/api/garage")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(garageDTO)));
+                    .content(objectMapper.writeValueAsString(garageInfoDTO)));
         });
 
         assertInstanceOf(CarNotFoundException.class, exception.getCause());
@@ -250,13 +246,13 @@ public class GarageControllerTest {
 
     @Test
     void updateGarage_shouldThrowGarageNotFound_WhenGarageIdInvalid() throws Exception {
-        when(garageService.updateGarage(any(GarageDTO.class)))
+        when(garageService.updateGarage(any(GarageInfoDTO.class)))
                 .thenThrow(new GarageNotFoundException("Garage not found"));
 
         ServletException exception = assertThrows(ServletException.class, () -> {
             mockMvc.perform(put("/api/garage")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(garageDTO)));
+                    .content(objectMapper.writeValueAsString(garageInfoDTO)));
         });
 
         assertInstanceOf(GarageNotFoundException.class, exception.getCause());
@@ -264,13 +260,13 @@ public class GarageControllerTest {
 
     @Test
     void updateGarage_shouldThrowCarNotFound_WhenCarToAddInvalid() throws Exception {
-        when(garageService.updateGarage(any(GarageDTO.class)))
+        when(garageService.updateGarage(any(GarageInfoDTO.class)))
                 .thenThrow(new CarNotFoundException("Car not found"));
 
         ServletException exception = assertThrows(ServletException.class, () -> {
             mockMvc.perform(put("/api/garage")
                     .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(garageDTO)));
+                    .content(objectMapper.writeValueAsString(garageInfoDTO)));
         });
 
         assertInstanceOf(CarNotFoundException.class, exception.getCause());

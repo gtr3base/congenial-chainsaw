@@ -4,7 +4,7 @@ import com.gtr3base.AvByAnalog.entity.NoteContent;
 import lombok.Builder;
 
 @Builder
-public record GarageDTO(
+public record GarageInfoDTO(
         Boolean locked,
         NoteContent content,
         Long noteId,

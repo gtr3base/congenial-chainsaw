@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class NoteContent {
-
+    private String title;
     private String text;
 
     @Lob

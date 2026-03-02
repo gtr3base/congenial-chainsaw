@@ -1,8 +1,8 @@
 package com.gtr3base.AvByAnalog.controller;
 
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
-import com.gtr3base.AvByAnalog.dto.GarageDTO;
-import com.gtr3base.AvByAnalog.dto.GarageResponse;
+import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
+import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.service.GarageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,18 +24,18 @@ public class GarageController {
     }
 
     @PostMapping
-    public ResponseEntity<GarageResponse> addGarage(@RequestBody GarageDTO garageDTO) {
-        return ResponseEntity.ok(garageService.addGarage(garageDTO));
+    public ResponseEntity<GarageInfoResponse> addGarage(@RequestBody GarageInfoDTO garageInfoDTO) {
+        return ResponseEntity.ok(garageService.addGarage(garageInfoDTO));
     }
 
     @GetMapping
-    public ResponseEntity<GarageResponse> getGarageByUserId() {
+    public ResponseEntity<GarageInfoResponse> getGarageByUserId() {
         return ResponseEntity.ok(garageService.getGarageByUserId());
     }
 
     @PutMapping
-    public ResponseEntity<GarageResponse> updateGarage(@RequestBody GarageDTO garageDTO) {
-        return ResponseEntity.ok(garageService.updateGarage(garageDTO));
+    public ResponseEntity<GarageInfoResponse> updateGarage(@RequestBody GarageInfoDTO garageInfoDTO) {
+        return ResponseEntity.ok(garageService.updateGarage(garageInfoDTO));
     }
 
     @DeleteMapping("/{id}")

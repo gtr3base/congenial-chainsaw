@@ -9,8 +9,7 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface NoteMapper {
     @Mapping(source = "garage.id", target = "garageId")
-    @Mapping(source = "car.id", target = "carId")
-    @Mapping(source = "createdAt", target = "createdAt")
+    @Mapping(source = "garageCar.car.id", target = "carId")
     @Mapping(source = "noteContent", target = "content")
     NoteResponse mapToNoteResponse(Note note);
 }

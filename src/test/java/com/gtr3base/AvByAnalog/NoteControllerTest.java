@@ -66,6 +66,7 @@ public class NoteControllerTest {
 
         NoteContent content = NoteContent
                 .builder()
+                .title("title")
                 .text("Note text example")
                 .content(b)
                 .build();
@@ -101,6 +102,7 @@ public class NoteControllerTest {
                 .andDo(print())
                 .andExpect(jsonPath("$.carId").value(1L))
                 .andExpect(jsonPath("$.garageId").value(1L))
+                .andExpect(jsonPath("$.content.title").value("title"))
                 .andExpect(jsonPath("$.content.text").value("Note text example"));
     }
 
@@ -113,6 +115,7 @@ public class NoteControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(noteUpdateRequest)))
                 .andDo(print())
+                .andExpect(jsonPath("$.content.title").value("title"))
                 .andExpect(jsonPath("$.content.text").value("Note text example"));
     }
 
@@ -122,6 +125,7 @@ public class NoteControllerTest {
                 .thenReturn(List.of(noteResponse));
 
         mockMvc.perform(get("/api/note/all"))
+                .andExpect(jsonPath("$[0].content.title").value("title"))
                 .andExpect(jsonPath("$[0].content.text").value("Note text example"));
     }
 

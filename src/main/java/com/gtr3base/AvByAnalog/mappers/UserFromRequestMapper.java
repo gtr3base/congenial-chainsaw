@@ -18,5 +18,6 @@ public interface UserFromRequestMapper {
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "cars", ignore = true)
     @Mapping(target = "favorites", ignore = true)
+    @Mapping(target = "notes", ignore = true)
     User toUser(RegisterRequest registerRequest);
 }

@@ -5,9 +5,9 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record GarageResponse(
+public record GarageInfoResponse(
         Boolean locked,
         Long garageId,
-        List<CarDTO> cars,
+        CarDTO car,
         List<NoteResponse> notes
 ) {}

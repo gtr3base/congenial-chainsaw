@@ -1,8 +1,8 @@
 package com.gtr3base.AvByAnalog.service;
 
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
-import com.gtr3base.AvByAnalog.dto.GarageDTO;
-import com.gtr3base.AvByAnalog.dto.GarageResponse;
+import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
+import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.Garage;
 import com.gtr3base.AvByAnalog.entity.Note;
@@ -56,21 +56,19 @@ public class GarageService {
 
         car.setGarage(garage);
 
-        garage.getCars().add(car);
+        garage.setCar(car);
         garageRepository.save(garage);
     }
 
-    public GarageResponse addGarage(GarageDTO garageDTO){
+    public GarageInfoResponse addGarage(GarageInfoDTO garageInfoDTO){
         User user = getCurrentUser();
 
-        Car car = carRepository.findById(garageDTO.carId())
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageDTO.carId())));
-
-        List<Car> cars = List.of(car);
+        Car car = carRepository.findById(garageInfoDTO.carId())
+                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageInfoDTO.carId())));
 
         Garage garage = Garage.builder()
-                .locked(garageDTO.locked())
-                .cars(cars)
+                .locked(garageInfoDTO.locked())
+                .car(car)
                 .user(user)
                 .build();
 
@@ -80,45 +78,42 @@ public class GarageService {
 
         garageRepository.save(garage);
 
-        return GarageResponse.builder()
+        return GarageInfoResponse.builder()
                 .garageId(garage.getId())
-                .locked(garage.isLocked())
+                .locked(garage.getLocked())
                 .build();
     }
 
-    public GarageResponse updateGarage(GarageDTO garageDTO){
-        Garage garage = garageRepository.findById(garageDTO.garageId())
-                .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, garageDTO.garageId())));
+    public GarageInfoResponse updateGarage(GarageInfoDTO garageInfoDTO){
+        Garage garage = garageRepository.findById(garageInfoDTO.garageId())
+                .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, garageInfoDTO.garageId())));
 
         User user = getCurrentUser();
 
-        List<Note> notes = noteRepository.findAllByUserId(user.getId());
+        List<Note> notes = noteRepository.findAllByGarageCarOwnerId(user.getId());
 
-        Car carToAdd = carRepository.findCarById(garageDTO.carId())
-                        .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID,  garageDTO.carId())));
+        Car carToAdd = carRepository.findCarById(garageInfoDTO.carId())
+                        .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID,  garageInfoDTO.carId())));
 
-        List<Car> cars = garage.getCars();
+        garage.setCar(carToAdd);
 
-        cars.add(carToAdd);
-
-        garage.setLocked(garageDTO.locked());
+        garage.setLocked(garageInfoDTO.locked());
         garage.setNotes(notes);
-        garage.setCars(cars);
 
         garageRepository.save(garage);
 
-        return garageMapper.toGarageResponse(garage);
+        return garageMapper.toGarageInfoResponse(garage);
     }
 
     public void deleteGarage(Long id) {
         garageRepository.deleteById(id);
     }
 
-    public GarageResponse getGarageByUserId(){
+    public GarageInfoResponse getGarageByUserId(){
         User user = getCurrentUser();
         Garage garage = garageRepository.findByUser(user)
                 .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND,  user.getUsername())));
-        return garageMapper.toGarageResponse(garage);
+        return garageMapper.toGarageInfoResponse(garage);
     }
 
     private User getCurrentUser(){
