@@ -27,8 +27,8 @@ public class GarageCar {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "car_id")
-    private Car car;
+    @JoinColumn(name = "garage_id")
+    private Garage garage;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

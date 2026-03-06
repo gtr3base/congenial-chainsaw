@@ -37,8 +37,8 @@ public class Garage {
     @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Note> notes;
 
-    @OneToOne(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Car car;
+    @OneToMany(mappedBy = "garage", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GarageCar> cars;
 
     @Column(name = "locked")
     private Boolean locked;

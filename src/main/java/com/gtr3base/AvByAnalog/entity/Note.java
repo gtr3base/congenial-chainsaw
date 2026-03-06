@@ -29,10 +29,6 @@ public class Note {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "garage_id")
-    private Garage garage;
-
-    @ManyToOne
     private GarageCar garageCar;
 
     @Embedded

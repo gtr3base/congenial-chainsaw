@@ -6,12 +6,8 @@ CREATE TABLE garage(
     locked BOOLEAN DEFAULT FALSE
 );
 
-ALTER TABLE cars
-ADD COLUMN garage_id BIGINT REFERENCES garage(id) ON DELETE SET NULL;
-
 CREATE TABLE note(
     id BIGSERIAL PRIMARY KEY,
-    garage_id INT NOT NULL REFERENCES garage(id) ON DELETE CASCADE,
     title TEXT,
     text TEXT,
     content BYTEA,

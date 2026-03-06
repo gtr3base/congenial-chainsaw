@@ -62,10 +62,6 @@ public class Car {
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PriceTracking> priceHistory;
 
-    @OneToOne
-    @JoinColumn(name = "garage_id")
-    private Garage garage;
-
     @OneToMany(mappedBy = "car", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Favorite> favorites;
 
