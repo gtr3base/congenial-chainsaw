@@ -6,10 +6,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface NoteMapper {
-    @Mapping(source = "garage.id", target = "garageId")
-    @Mapping(source = "garageCar.car.id", target = "carId")
+    @Mapping(source = "garageCar.garage.id", target = "garageId")
+    @Mapping(source = "garageCar.id", target = "carId")
     @Mapping(source = "noteContent", target = "content")
     NoteResponse mapToNoteResponse(Note note);
+
+    List<NoteResponse> toNoteResponseList(List<Note> notes);
 }

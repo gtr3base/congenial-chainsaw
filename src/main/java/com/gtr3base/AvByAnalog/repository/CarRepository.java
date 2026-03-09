@@ -13,9 +13,9 @@ public interface CarRepository extends PagingAndSortingRepository<Car, Long>, Jp
 
     Optional<Car> findCarById(Long id);
 
-    Optional<Car> findCarByUserId(Integer userId);
-
     Optional<List<Car>> findCarsByUserId(Integer userId);
 
     Long user(User user);
+
+    Optional<List<Car>> findCarsById(Long id);
 }

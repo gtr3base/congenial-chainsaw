@@ -7,7 +7,6 @@ import java.util.List;
 @Builder
 public record GarageInfoResponse(
         Boolean locked,
-        Long garageId,
-        CarDTO car,
+        List<GarageCarDTO> cars,
         List<NoteResponse> notes
 ) {}

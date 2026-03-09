@@ -3,14 +3,11 @@ package com.gtr3base.AvByAnalog.service;
 import com.gtr3base.AvByAnalog.dto.NoteDTO;
 import com.gtr3base.AvByAnalog.dto.NoteResponse;
 import com.gtr3base.AvByAnalog.dto.NoteUpdateRequest;
-import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.Garage;
 import com.gtr3base.AvByAnalog.entity.GarageCar;
 import com.gtr3base.AvByAnalog.entity.Note;
 import com.gtr3base.AvByAnalog.entity.NoteContent;
 import com.gtr3base.AvByAnalog.entity.User;
-import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
-import com.gtr3base.AvByAnalog.exceptions.CarNotInGarageException;
 import com.gtr3base.AvByAnalog.exceptions.GarageNotFoundException;
 import com.gtr3base.AvByAnalog.exceptions.NoteNotFoundException;
 import com.gtr3base.AvByAnalog.mappers.GarageMapper;
@@ -28,8 +25,6 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
-import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_IN_GARAGE;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.GARAGE_NOT_FOUND;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.NOTE_NOT_FOUND;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.USER_NOT_FOUND;
@@ -68,25 +63,16 @@ public class NoteService {
         GarageCar garageCar = GarageCar
                 .builder()
                 .owner(user)
+                .garage(garage)
                 .build();
 
         Note note = Note
                 .builder()
                 .noteContent(content)
-                .garage(garage)
                 .garageCar(garageCar)
                 .build();
 
-        if (noteDTO.carId() != null) {
-            Car car = carRepository.findById(noteDTO.carId())
-                    .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, noteDTO.carId())));
-            if (!car.getGarage().getId().equals(garage.getId())) {
-                throw new CarNotInGarageException(CAR_NOT_IN_GARAGE);
-            }
-
-            garageCar.setCar(car);
-            note.setGarageCar(garageCar);
-        }
+        note.setGarageCar(garageCar);
 
         noteRepository.save(note);
         garageCarRepository.save(garageCar);

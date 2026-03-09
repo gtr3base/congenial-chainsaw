@@ -5,6 +5,7 @@ import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
 import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.Garage;
+import com.gtr3base.AvByAnalog.entity.GarageCar;
 import com.gtr3base.AvByAnalog.entity.Note;
 import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.exceptions.CarNotFoundException;
@@ -20,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
@@ -54,21 +56,24 @@ public class GarageService {
 
         Car car = carFromRequestMapper.toCar(carRequest);
 
-        car.setGarage(garage);
-
-        garage.setCar(car);
         garageRepository.save(garage);
     }
 
     public GarageInfoResponse addGarage(GarageInfoDTO garageInfoDTO){
         User user = getCurrentUser();
 
-        Car car = carRepository.findById(garageInfoDTO.carId())
+        List<Car> cars = carRepository.findCarsById((garageInfoDTO.carId()))
                 .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageInfoDTO.carId())));
+
+        List<GarageCar> gCars = new ArrayList<>();
+
+        for(Car car : cars){
+            gCars.add(carFromRequestMapper.toGarageCar(car));
+        }
 
         Garage garage = Garage.builder()
                 .locked(garageInfoDTO.locked())
-                .car(car)
+                .cars(gCars)
                 .user(user)
                 .build();
 
@@ -79,8 +84,7 @@ public class GarageService {
         garageRepository.save(garage);
 
         return GarageInfoResponse.builder()
-                .garageId(garage.getId())
-                .locked(garage.getLocked())
+                .locked(garage.getLocked()) //todo add cars
                 .build();
     }
 
@@ -95,7 +99,7 @@ public class GarageService {
         Car carToAdd = carRepository.findCarById(garageInfoDTO.carId())
                         .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID,  garageInfoDTO.carId())));
 
-        garage.setCar(carToAdd);
+        garage.getCars().add(carFromRequestMapper.toGarageCar(carToAdd));
 
         garage.setLocked(garageInfoDTO.locked());
         garage.setNotes(notes);

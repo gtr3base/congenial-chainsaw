@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gtr3base.AvByAnalog.controller.GarageController;
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
+import com.gtr3base.AvByAnalog.dto.GarageCarDTO;
 import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
 import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.dto.NoteResponse;
@@ -32,7 +33,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -74,6 +74,8 @@ public class GarageControllerTest {
     private NoteContent content;
 
     private CarDTO carDTO;
+
+    private GarageCarDTO garageCarDTO;
 
     private GarageInfoDTO garageInfoDTO;
 
@@ -128,10 +130,14 @@ public class GarageControllerTest {
                 .vinCode("ABC12345678901234")
                 .build();
 
-        garageInfoResponse = GarageInfoResponse.builder()
+        garageCarDTO = GarageCarDTO.builder()
                 .garageId(1L)
+                .userId(1L)
+                .build();
+
+        garageInfoResponse = GarageInfoResponse.builder()
                 .notes(List.of(noteResponse))
-                .car(carDTO)
+                .cars(List.of(garageCarDTO))
                 .locked(true)
                 .build();
 
@@ -164,11 +170,10 @@ public class GarageControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(garageInfoDTO)))
                 .andDo(print())
-                .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.car.id").value(1))
-                .andExpect(jsonPath("$.car.carMake").value("BMW"));
+                .andExpect(jsonPath("$.cars[0].garageId").value(1))
+                .andExpect(jsonPath("$.cars[0].userId").value(1));
 
     }
     @Test
@@ -178,11 +183,10 @@ public class GarageControllerTest {
 
         mockMvc.perform(get("/api/garage"))
                 .andDo(print())
-                .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.car.id").value(1))
-                .andExpect(jsonPath("$.car.carMake").value("BMW"));
+                .andExpect(jsonPath("$.cars[0].garageId").value(1))
+                .andExpect(jsonPath("$.cars[0].userId").value(1));
 }
 
     @Test
@@ -194,11 +198,10 @@ public class GarageControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(garageInfoDTO)))
                 .andDo(print())
-                .andExpect(jsonPath("$.garageId").value(1))
                 .andExpect(jsonPath("$.locked").value(true))
                 .andExpect(jsonPath("$.notes[0].id").value(1))
-                .andExpect(jsonPath("$.car.id").value(1))
-                .andExpect(jsonPath("$.car .carMake").value("BMW"));
+                .andExpect(jsonPath("$.cars[0].garageId").value(1))
+                .andExpect(jsonPath("$.cars[0].userId").value(1));
     }
 
     @Test
