@@ -1,6 +1,7 @@
 package com.gtr3base.AvByAnalog.service;
 
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
+import com.gtr3base.AvByAnalog.dto.GarageCarDTO;
 import com.gtr3base.AvByAnalog.dto.GarageInfoDTO;
 import com.gtr3base.AvByAnalog.dto.GarageInfoResponse;
 import com.gtr3base.AvByAnalog.entity.Car;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.GARAGE_NOT_FOUND;
@@ -56,35 +58,42 @@ public class GarageService {
 
         Car car = carFromRequestMapper.toCar(carRequest);
 
+        garage.getCars().add(carFromRequestMapper.toGarageCar(car));
+
         garageRepository.save(garage);
     }
 
     public GarageInfoResponse addGarage(GarageInfoDTO garageInfoDTO){
         User user = getCurrentUser();
 
-        List<Car> cars = carRepository.findCarsById((garageInfoDTO.carId()))
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageInfoDTO.carId())));
-
-        List<GarageCar> gCars = new ArrayList<>();
-
-        for(Car car : cars){
-            gCars.add(carFromRequestMapper.toGarageCar(car));
-        }
-
         Garage garage = Garage.builder()
                 .locked(garageInfoDTO.locked())
-                .cars(gCars)
                 .user(user)
                 .build();
 
-        User owner = getCurrentUser();
+        Car car = carRepository.findById(garageInfoDTO.carId())
+                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageInfoDTO.carId())));
 
-        garage.setUser(owner);
+        GarageCar garageCar = carFromRequestMapper.toGarageCar(car);
+
+        garage.getCars().add(garageCar);
+
+        garage.setUser(user);
 
         garageRepository.save(garage);
 
+        GarageCarDTO garageCarDTO = GarageCarDTO
+                .builder()
+                .userId(Long.valueOf(user.getId()))
+                .garageId(garage.getId())
+                .build();
+
+        List<GarageCarDTO> garageCarDTOS = new ArrayList<>();
+        garageCarDTOS.add(garageCarDTO);
+
         return GarageInfoResponse.builder()
-                .locked(garage.getLocked()) //todo add cars
+                .locked(garage.getLocked())
+                .cars(garageCarDTOS)
                 .build();
     }
 
