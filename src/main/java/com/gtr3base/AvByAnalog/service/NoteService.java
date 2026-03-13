@@ -58,11 +58,12 @@ public class NoteService {
         Garage garage = garageRepository.findByUser(user)
                 .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, user.getUsername())));
 
+        garage.setUser(user);
+
         NoteContent content = noteDTO.content();
 
         GarageCar garageCar = GarageCar
                 .builder()
-                .owner(user)
                 .garage(garage)
                 .build();
 
@@ -75,7 +76,6 @@ public class NoteService {
         note.setGarageCar(garageCar);
 
         noteRepository.save(note);
-        garageCarRepository.save(garageCar);
 
         return noteMapper.mapToNoteResponse(note);
     }

@@ -6,9 +6,12 @@ import com.gtr3base.AvByAnalog.entity.Car;
 import com.gtr3base.AvByAnalog.entity.GarageCar;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
+)
 public interface CarFromRequestMapper {
 
     @Mapping(source = "carModel.name", target = "carModel")
@@ -37,7 +40,8 @@ public interface CarFromRequestMapper {
     @Mapping(source = "generation.id", target = "generationId")
     CarCreateRequest toCarCreateRequest(Car car);
 
-    @Mapping(source = "user", target = "owner")
+    @Mapping(source = "user", target = "garage.user")
     @Mapping(target = "garage", ignore = true)
+    @Mapping(target = "notes", ignore = true)
     GarageCar toGarageCar(Car car);
 }

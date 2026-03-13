@@ -5,9 +5,12 @@ import com.gtr3base.AvByAnalog.entity.User;
 import com.gtr3base.AvByAnalog.enums.UserRole;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = UserRole.class)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR, imports = UserRole.class,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
+)
 public interface UserFromRequestMapper {
 
     RegisterRequest toDTO(User entity);

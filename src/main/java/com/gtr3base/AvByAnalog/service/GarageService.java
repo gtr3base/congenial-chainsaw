@@ -76,8 +76,9 @@ public class GarageService {
 
         GarageCar garageCar = carFromRequestMapper.toGarageCar(car);
 
-        garage.getCars().add(garageCar);
-
+        if(garage.getCars() != null && !garage.getCars().isEmpty()){
+            garage.getCars().add(garageCar);
+        }
         garage.setUser(user);
 
         garageRepository.save(garage);
@@ -108,10 +109,14 @@ public class GarageService {
         Car carToAdd = carRepository.findCarById(garageInfoDTO.carId())
                         .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID,  garageInfoDTO.carId())));
 
-        garage.getCars().add(carFromRequestMapper.toGarageCar(carToAdd));
+        GarageCar gCar = carFromRequestMapper.toGarageCar(carToAdd);
+        gCar.setNotes(notes);
+
+        if(garage.getCars() != null && !garage.getCars().isEmpty()){
+            garage.getCars().add(gCar);
+        }
 
         garage.setLocked(garageInfoDTO.locked());
-        garage.setNotes(notes);
 
         garageRepository.save(garage);
 
