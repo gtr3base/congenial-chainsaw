@@ -5,6 +5,7 @@ import com.gtr3base.AvByAnalog.dto.NoteResponse;
 import com.gtr3base.AvByAnalog.dto.NoteUpdateRequest;
 import com.gtr3base.AvByAnalog.service.NoteService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,6 +32,11 @@ public class NoteController {
     @PutMapping
     public ResponseEntity<NoteResponse> updateNote(@RequestBody NoteUpdateRequest noteUpdateRequest){
         return ResponseEntity.ok(noteService.updateNote(noteUpdateRequest));
+    }
+
+    @DeleteMapping("/all")
+    public ResponseEntity<String> deleteNotes(){
+        return ResponseEntity.ok(noteService.deleteAllNotes());
     }
 
     @GetMapping("/all")

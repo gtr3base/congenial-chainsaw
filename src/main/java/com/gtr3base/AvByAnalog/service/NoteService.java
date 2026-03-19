@@ -31,6 +31,8 @@ import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.USER_NOT_FOUND;
 
 @Service
 public class NoteService {
+    private static final String NOTES_DELETED = "Notes deleted successfully";
+
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
     private final GarageRepository garageRepository;
@@ -50,15 +52,8 @@ public class NoteService {
     }
 
     public NoteResponse createNote(NoteDTO noteDTO){
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository
-                .findByLogin(authentication.getName())
-                .orElseThrow(()-> new UsernameNotFoundException(String.format(USER_NOT_FOUND, authentication.getName())));
-
-        Garage garage = garageRepository.findByUser(user)
-                .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, user.getUsername())));
-
-        garage.setUser(user);
+        Garage garage = garageRepository.findById(noteDTO.carId())
+                .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, noteDTO.carId())));
 
         NoteContent content = noteDTO.content();
 
@@ -93,5 +88,10 @@ public class NoteService {
     public List<NoteResponse> getAllNotes(){
         List<Note> notes = noteRepository.findAll();
         return notes.stream().map(noteMapper::mapToNoteResponse).collect(Collectors.toList());
+    }
+
+    public String deleteAllNotes() {
+        noteRepository.deleteAll();
+        return NOTES_DELETED;
     }
 }

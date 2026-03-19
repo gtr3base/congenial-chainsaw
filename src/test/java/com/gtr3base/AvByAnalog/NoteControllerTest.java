@@ -29,6 +29,7 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -44,6 +45,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 )
 @AutoConfigureMockMvc(addFilters = false)
 public class NoteControllerTest {
+
+    private static final String NOTES_DELETED = "Notes deleted successfully";
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -170,5 +174,14 @@ public class NoteControllerTest {
         });
 
         assertInstanceOf(NoteNotFoundException.class, exception.getCause());
+    }
+
+    @Test
+    void deleteNote_shouldReturnString_WhenValid() throws Exception {
+        when(noteService.deleteAllNotes())
+                .thenReturn(NOTES_DELETED);
+
+        mockMvc.perform(delete("/api/note/all")).andDo(print())
+                .andExpect(jsonPath("$").value(NOTES_DELETED));
     }
 }

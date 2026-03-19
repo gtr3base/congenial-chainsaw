@@ -24,7 +24,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.CAR_NOT_FOUND_BY_ID;
 import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.GARAGE_NOT_FOUND;
@@ -71,14 +70,6 @@ public class GarageService {
                 .user(user)
                 .build();
 
-        Car car = carRepository.findById(garageInfoDTO.carId())
-                .orElseThrow(() -> new CarNotFoundException(String.format(CAR_NOT_FOUND_BY_ID, garageInfoDTO.carId())));
-
-        GarageCar garageCar = carFromRequestMapper.toGarageCar(car);
-
-        if(garage.getCars() != null && !garage.getCars().isEmpty()){
-            garage.getCars().add(garageCar);
-        }
         garage.setUser(user);
 
         garageRepository.save(garage);
