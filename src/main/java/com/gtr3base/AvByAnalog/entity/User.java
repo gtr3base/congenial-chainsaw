@@ -41,6 +41,9 @@ public class User {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Car> cars;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Note> notes;
+
     @Column(name = "username", nullable = false, unique = true, length = 50)
     @NotBlank(message = "Username is required")
     @Size(min = 0, max = 50, message = "Username must be between 0 and 50 chars")

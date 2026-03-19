@@ -1,0 +1,22 @@
+package com.gtr3base.AvByAnalog.mappers;
+
+import com.gtr3base.AvByAnalog.dto.NoteResponse;
+import com.gtr3base.AvByAnalog.entity.Note;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
+import org.mapstruct.ReportingPolicy;
+
+import java.util.List;
+
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
+)
+public interface NoteMapper {
+    @Mapping(source = "garageCar.garage.id", target = "garageId")
+    @Mapping(source = "garageCar.id", target = "carId")
+    @Mapping(source = "noteContent", target = "content")
+    NoteResponse mapToNoteResponse(Note note);
+
+    List<NoteResponse> toNoteResponseList(List<Note> notes);
+}

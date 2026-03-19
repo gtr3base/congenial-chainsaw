@@ -3,11 +3,15 @@ package com.gtr3base.AvByAnalog.mappers;
 import com.gtr3base.AvByAnalog.dto.CarCreateRequest;
 import com.gtr3base.AvByAnalog.dto.CarDTO;
 import com.gtr3base.AvByAnalog.entity.Car;
+import com.gtr3base.AvByAnalog.entity.GarageCar;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.NullValueMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.ERROR,
+        nullValueMappingStrategy = NullValueMappingStrategy.RETURN_NULL
+)
 public interface CarFromRequestMapper {
 
     @Mapping(source = "carModel.name", target = "carModel")
@@ -17,7 +21,7 @@ public interface CarFromRequestMapper {
     @Mapping(source = "carModel.carMake.name", target = "carMake")
     @Mapping(source = "status", target = "carStatus")
     @Mapping(source = "pendingAction", target = "carAction")
-    CarDTO toResponse(Car car);
+    CarDTO toCarDTO(Car car);
 
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "carModel", ignore = true)
@@ -35,4 +39,9 @@ public interface CarFromRequestMapper {
     @Mapping(source = "carModel.carMake.id", target = "makeId")
     @Mapping(source = "generation.id", target = "generationId")
     CarCreateRequest toCarCreateRequest(Car car);
+
+    @Mapping(source = "user", target = "garage.user")
+    @Mapping(target = "garage", ignore = true)
+    @Mapping(target = "notes", ignore = true)
+    GarageCar toGarageCar(Car car);
 }

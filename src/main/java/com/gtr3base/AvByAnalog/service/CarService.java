@@ -62,7 +62,7 @@ public class CarService {
 
         Car savedCar = carRepository.save(carToSave);
 
-        return carFromRequestMapper.toResponse(savedCar);
+        return carFromRequestMapper.toCarDTO(savedCar);
     }
 
     public void deleteCarById(Long id) {
@@ -112,7 +112,7 @@ public class CarService {
         car.setPendingAction(CarAction.UPDATE);
 
         Car savedCar = carRepository.save(car);
-        return carFromRequestMapper.toResponse(savedCar);
+        return carFromRequestMapper.toCarDTO(savedCar);
     }
 
     @Transactional
@@ -136,7 +136,7 @@ public class CarService {
             }
         }
 
-        return carFromRequestMapper.toResponse(car);
+        return carFromRequestMapper.toCarDTO(car);
     }
 
     public Page<CarDTO> searchCars(CarSearchFilter filter,
@@ -146,7 +146,7 @@ public class CarService {
 
         Page<Car> cars = carRepository.findAll(spec, pageable);
 
-        return cars.map(carFromRequestMapper::toResponse);
+        return cars.map(carFromRequestMapper::toCarDTO);
     }
 
 

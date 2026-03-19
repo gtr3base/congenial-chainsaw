@@ -1,0 +1,97 @@
+package com.gtr3base.AvByAnalog.service;
+
+import com.gtr3base.AvByAnalog.dto.NoteDTO;
+import com.gtr3base.AvByAnalog.dto.NoteResponse;
+import com.gtr3base.AvByAnalog.dto.NoteUpdateRequest;
+import com.gtr3base.AvByAnalog.entity.Garage;
+import com.gtr3base.AvByAnalog.entity.GarageCar;
+import com.gtr3base.AvByAnalog.entity.Note;
+import com.gtr3base.AvByAnalog.entity.NoteContent;
+import com.gtr3base.AvByAnalog.entity.User;
+import com.gtr3base.AvByAnalog.exceptions.GarageNotFoundException;
+import com.gtr3base.AvByAnalog.exceptions.NoteNotFoundException;
+import com.gtr3base.AvByAnalog.mappers.GarageMapper;
+import com.gtr3base.AvByAnalog.mappers.NoteMapper;
+import com.gtr3base.AvByAnalog.repository.CarRepository;
+import com.gtr3base.AvByAnalog.repository.GarageCarRepository;
+import com.gtr3base.AvByAnalog.repository.GarageRepository;
+import com.gtr3base.AvByAnalog.repository.NoteRepository;
+import com.gtr3base.AvByAnalog.repository.UserRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.GARAGE_NOT_FOUND;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.NOTE_NOT_FOUND;
+import static com.gtr3base.AvByAnalog.exceptions.ErrorHandler.USER_NOT_FOUND;
+
+@Service
+public class NoteService {
+    private static final String NOTES_DELETED = "Notes deleted successfully";
+
+    private final NoteRepository noteRepository;
+    private final UserRepository userRepository;
+    private final GarageRepository garageRepository;
+    private final CarRepository carRepository;
+    private final NoteMapper noteMapper;
+    private final GarageCarRepository garageCarRepository;
+    private final GarageMapper garageMapper;
+
+    public NoteService(NoteRepository noteRepository, UserRepository userRepository, GarageRepository garageRepository, CarRepository carRepository, NoteMapper noteMapper, GarageCarRepository garageCarRepository, GarageMapper garageMapper) {
+        this.noteRepository = noteRepository;
+        this.userRepository = userRepository;
+        this.garageRepository = garageRepository;
+        this.carRepository = carRepository;
+        this.noteMapper = noteMapper;
+        this.garageCarRepository = garageCarRepository;
+        this.garageMapper = garageMapper;
+    }
+
+    public NoteResponse createNote(NoteDTO noteDTO){
+        Garage garage = garageRepository.findById(noteDTO.carId())
+                .orElseThrow(() -> new GarageNotFoundException(String.format(GARAGE_NOT_FOUND, noteDTO.carId())));
+
+        NoteContent content = noteDTO.content();
+
+        GarageCar garageCar = GarageCar
+                .builder()
+                .garage(garage)
+                .build();
+
+        Note note = Note
+                .builder()
+                .noteContent(content)
+                .garageCar(garageCar)
+                .build();
+
+        note.setGarageCar(garageCar);
+
+        noteRepository.save(note);
+
+        return noteMapper.mapToNoteResponse(note);
+    }
+
+    public NoteResponse updateNote(NoteUpdateRequest noteUpdateRequest){
+        Note note = noteRepository.findById(noteUpdateRequest.id())
+                .orElseThrow(() -> new NoteNotFoundException(String.format(NOTE_NOT_FOUND, noteUpdateRequest.id())));
+
+        note.setNoteContent(noteUpdateRequest.content());
+
+        noteRepository.save(note);
+        return noteMapper.mapToNoteResponse(note);
+    }
+
+    public List<NoteResponse> getAllNotes(){
+        List<Note> notes = noteRepository.findAll();
+        return notes.stream().map(noteMapper::mapToNoteResponse).collect(Collectors.toList());
+    }
+
+    public String deleteAllNotes() {
+        noteRepository.deleteAll();
+        return NOTES_DELETED;
+    }
+}
